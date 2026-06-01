@@ -14,7 +14,339 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      categories: {
+        Row: {
+          active: boolean
+          color: string
+          created_at: string
+          icon: string | null
+          id: string
+          kind: Database["public"]["Enums"]["category_kind"]
+          name: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          color?: string
+          created_at?: string
+          icon?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["category_kind"]
+          name: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          color?: string
+          created_at?: string
+          icon?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["category_kind"]
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      credit_card_invoices: {
+        Row: {
+          created_at: string
+          credit_card_id: string
+          id: string
+          invoice_month: string
+          status: Database["public"]["Enums"]["invoice_status"]
+          total_amount: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          credit_card_id: string
+          id?: string
+          invoice_month: string
+          status?: Database["public"]["Enums"]["invoice_status"]
+          total_amount?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          credit_card_id?: string
+          id?: string
+          invoice_month?: string
+          status?: Database["public"]["Enums"]["invoice_status"]
+          total_amount?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_card_invoices_credit_card_id_fkey"
+            columns: ["credit_card_id"]
+            isOneToOne: false
+            referencedRelation: "credit_cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      credit_cards: {
+        Row: {
+          active: boolean
+          closing_day: number
+          created_at: string
+          credit_limit: number | null
+          due_day: number
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          closing_day: number
+          created_at?: string
+          credit_limit?: number | null
+          due_day: number
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          closing_day?: number
+          created_at?: string
+          credit_limit?: number | null
+          due_day?: number
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      installment_groups: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          credit_card_id: string | null
+          description: string
+          first_due_date: string
+          id: string
+          installments_count: number
+          payment_method: Database["public"]["Enums"]["payment_method"] | null
+          total_amount: number
+          user_id: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          credit_card_id?: string | null
+          description: string
+          first_due_date: string
+          id?: string
+          installments_count: number
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          total_amount: number
+          user_id: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          credit_card_id?: string | null
+          description?: string
+          first_due_date?: string
+          id?: string
+          installments_count?: number
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          total_amount?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "installment_groups_card_fk"
+            columns: ["credit_card_id"]
+            isOneToOne: false
+            referencedRelation: "credit_cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "installment_groups_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      recurring_rules: {
+        Row: {
+          active: boolean
+          amount: number
+          category_id: string | null
+          created_at: string
+          day_of_month: number | null
+          description: string
+          end_date: string | null
+          frequency: Database["public"]["Enums"]["recurrence_frequency"]
+          id: string
+          payment_method: Database["public"]["Enums"]["payment_method"] | null
+          start_date: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          amount: number
+          category_id?: string | null
+          created_at?: string
+          day_of_month?: number | null
+          description: string
+          end_date?: string | null
+          frequency?: Database["public"]["Enums"]["recurrence_frequency"]
+          id?: string
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          start_date: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          amount?: number
+          category_id?: string | null
+          created_at?: string
+          day_of_month?: number | null
+          description?: string
+          end_date?: string | null
+          frequency?: Database["public"]["Enums"]["recurrence_frequency"]
+          id?: string
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          start_date?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recurring_rules_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transactions: {
+        Row: {
+          amount: number
+          category_id: string | null
+          created_at: string
+          credit_card_id: string | null
+          description: string
+          due_date: string
+          id: string
+          installment_group_id: string | null
+          installment_number: number | null
+          installment_total: number | null
+          invoice_month: string | null
+          is_installment: boolean
+          is_recurring: boolean
+          notes: string | null
+          payment_date: string | null
+          payment_method: Database["public"]["Enums"]["payment_method"] | null
+          recurring_rule_id: string | null
+          status: Database["public"]["Enums"]["transaction_status"]
+          type: Database["public"]["Enums"]["transaction_type"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          category_id?: string | null
+          created_at?: string
+          credit_card_id?: string | null
+          description: string
+          due_date: string
+          id?: string
+          installment_group_id?: string | null
+          installment_number?: number | null
+          installment_total?: number | null
+          invoice_month?: string | null
+          is_installment?: boolean
+          is_recurring?: boolean
+          notes?: string | null
+          payment_date?: string | null
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          recurring_rule_id?: string | null
+          status?: Database["public"]["Enums"]["transaction_status"]
+          type: Database["public"]["Enums"]["transaction_type"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          category_id?: string | null
+          created_at?: string
+          credit_card_id?: string | null
+          description?: string
+          due_date?: string
+          id?: string
+          installment_group_id?: string | null
+          installment_number?: number | null
+          installment_total?: number | null
+          invoice_month?: string | null
+          is_installment?: boolean
+          is_recurring?: boolean
+          notes?: string | null
+          payment_date?: string | null
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          recurring_rule_id?: string | null
+          status?: Database["public"]["Enums"]["transaction_status"]
+          type?: Database["public"]["Enums"]["transaction_type"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_credit_card_id_fkey"
+            columns: ["credit_card_id"]
+            isOneToOne: false
+            referencedRelation: "credit_cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_installment_group_id_fkey"
+            columns: ["installment_group_id"]
+            isOneToOne: false
+            referencedRelation: "installment_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_recurring_rule_id_fkey"
+            columns: ["recurring_rule_id"]
+            isOneToOne: false
+            referencedRelation: "recurring_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +355,19 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      category_kind: "receita" | "despesa" | "ambos"
+      invoice_status: "aberta" | "fechada" | "paga"
+      payment_method:
+        | "pix"
+        | "dinheiro"
+        | "debito"
+        | "credito"
+        | "boleto"
+        | "transferencia"
+        | "outro"
+      recurrence_frequency: "mensal" | "semanal" | "anual"
+      transaction_status: "pago" | "pendente"
+      transaction_type: "receita" | "despesa"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +494,21 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      category_kind: ["receita", "despesa", "ambos"],
+      invoice_status: ["aberta", "fechada", "paga"],
+      payment_method: [
+        "pix",
+        "dinheiro",
+        "debito",
+        "credito",
+        "boleto",
+        "transferencia",
+        "outro",
+      ],
+      recurrence_frequency: ["mensal", "semanal", "anual"],
+      transaction_status: ["pago", "pendente"],
+      transaction_type: ["receita", "despesa"],
+    },
   },
 } as const
