@@ -1,0 +1,146 @@
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { LayoutDashboard, ArrowLeftRight, Tags, CreditCard, BarChart3, LogOut, Wallet, Plus, Menu } from "lucide-react";
+import { type ReactNode, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { supabase } from "@/integrations/supabase/client";
+import { TransactionDialog } from "@/components/transaction-dialog";
+
+const nav = [
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/transactions", label: "Transações", icon: ArrowLeftRight },
+  { to: "/categories", label: "Categorias", icon: Tags },
+  { to: "/cards", label: "Cartões", icon: CreditCard },
+  { to: "/reports", label: "Relatórios", icon: BarChart3 },
+];
+
+function NavList({ onClick }: { onClick?: () => void }) {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  return (
+    <nav className="flex-1 px-3 py-4 space-y-1">
+      {nav.map((item) => {
+        const active = pathname === item.to;
+        return (
+          <Link
+            key={item.to}
+            to={item.to}
+            onClick={onClick}
+            className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+              active
+                ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                : "text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground"
+            }`}
+          >
+            <item.icon className="h-4 w-4" />
+            {item.label}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}
+
+function SidebarContent({ onLogout, onNavigate }: { onLogout: () => void; onNavigate?: () => void }) {
+  return (
+    <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
+      <div className="flex items-center gap-2 px-5 py-5 border-b border-sidebar-border">
+        <div className="h-9 w-9 rounded-xl bg-sidebar-primary text-sidebar-primary-foreground flex items-center justify-center">
+          <Wallet className="h-5 w-5" />
+        </div>
+        <div>
+          <div className="font-semibold text-sm leading-tight">Controle</div>
+          <div className="text-xs text-sidebar-foreground/60">Financeiro</div>
+        </div>
+      </div>
+      <NavList onClick={onNavigate} />
+      <div className="p-3 border-t border-sidebar-border">
+        <button
+          onClick={onLogout}
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground transition-colors"
+        >
+          <LogOut className="h-4 w-4" /> Sair
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export function AppShell({ children }: { children: ReactNode }) {
+  const navigate = useNavigate();
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [txOpen, setTxOpen] = useState(false);
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  const logout = async () => {
+    await supabase.auth.signOut();
+    navigate({ to: "/auth", replace: true });
+  };
+
+  return (
+    <div className="min-h-screen flex bg-background">
+      <aside className="hidden md:flex w-64 shrink-0 border-r border-sidebar-border">
+        <SidebarContent onLogout={logout} />
+      </aside>
+
+      <div className="flex-1 flex flex-col min-w-0">
+        <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b bg-background/80 backdrop-blur px-4 py-3 md:px-8">
+          <div className="flex items-center gap-2 md:hidden">
+            <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon"><Menu className="h-5 w-5" /></Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="p-0 w-64">
+                <SidebarContent onLogout={logout} onNavigate={() => setSheetOpen(false)} />
+              </SheetContent>
+            </Sheet>
+            <span className="font-semibold">Controle</span>
+          </div>
+
+          <div className="hidden md:block">
+            <h1 className="text-lg font-semibold capitalize">
+              {nav.find((n) => n.to === pathname)?.label ?? ""}
+            </h1>
+          </div>
+
+          <Button onClick={() => setTxOpen(true)} className="rounded-full" size="sm">
+            <Plus className="h-4 w-4 mr-1" /> Nova
+          </Button>
+        </header>
+
+        <main className="flex-1 p-4 md:p-8 pb-24 md:pb-8">{children}</main>
+
+        {/* Bottom nav mobile */}
+        <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 border-t bg-background/95 backdrop-blur">
+          <div className="grid grid-cols-5">
+            {nav.map((item) => {
+              const active = pathname === item.to;
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className={`flex flex-col items-center gap-1 py-2 text-[10px] ${
+                    active ? "text-foreground" : "text-muted-foreground"
+                  }`}
+                >
+                  <item.icon className={`h-5 w-5 ${active ? "text-success" : ""}`} />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
+
+        {/* Floating action mobile */}
+        <Button
+          onClick={() => setTxOpen(true)}
+          className="md:hidden fixed bottom-20 right-4 h-14 w-14 rounded-full shadow-lg z-40"
+          size="icon"
+        >
+          <Plus className="h-6 w-6" />
+        </Button>
+
+        <TransactionDialog open={txOpen} onOpenChange={setTxOpen} />
+      </div>
+    </div>
+  );
+}
