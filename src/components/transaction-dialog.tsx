@@ -165,9 +165,10 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
         toast.success("Despesa recorrente criada (12 lançamentos).");
       } else if (isInstallment && type === "despesa") {
         const n = Math.max(2, Math.min(120, installments));
-        const per = Math.round((valueNum / n) * 100) / 100;
+        const per = valueNum; // valor é por parcela
+        const total = Math.round(per * n * 100) / 100;
         const { data: grp, error: grpErr } = await supabase.from("installment_groups").insert({
-          user_id, description, total_amount: valueNum, installments_count: n,
+          user_id, description, total_amount: total, installments_count: n,
           first_due_date: dueDate, category_id: categoryId || null,
           payment_method: paymentMethod as never,
           credit_card_id: creditCardId || null,
@@ -190,7 +191,8 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
         }
         const { error: txErr } = await supabase.from("transactions").insert(rows);
         if (txErr) throw txErr;
-        toast.success(`${n} parcelas criadas.`);
+        toast.success(`${n} parcelas criadas (total ${total.toLocaleString("pt-BR",{minimumFractionDigits:2})}).`);
+
       } else {
         const { error } = await supabase.from("transactions").insert({
           user_id, type, description, amount: valueNum, due_date: dueDate,
