@@ -345,6 +345,21 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
             </>
           )}
 
+          {isEdit && (groupInfo?.installment_group_id || groupInfo?.recurring_rule_id) && (
+            <div className="rounded-lg border p-3 space-y-2 bg-muted/30">
+              <Label>Aplicar alterações a</Label>
+              <RadioGroup value={editScope} onValueChange={(v) => setEditScope(v as EditScope)} className="flex flex-col gap-2">
+                <label className="flex items-center gap-2 cursor-pointer text-sm">
+                  <RadioGroupItem value="one" /> Somente esta transação
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer text-sm">
+                  <RadioGroupItem value="future" /> Esta e todas as futuras
+                </label>
+              </RadioGroup>
+            </div>
+          )}
+
+
           <div className="space-y-2">
             <Label>Observações</Label>
             <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
