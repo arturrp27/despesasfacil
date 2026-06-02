@@ -389,7 +389,29 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
             </RadioGroup>
           </div>
 
+          {isEdit && isInstallment && groupInfo?.installment_group_id && (
+            <div className="rounded-lg border p-3 space-y-3">
+              <Label>Parcelamento</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">Nº de parcelas</Label>
+                  <Input type="number" min={1} max={120} value={installments} onChange={(e) => setInstallments(Number(e.target.value))} />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">Total da compra</Label>
+                  <Input disabled value={(parseAmount(amount) * Math.max(1, installments)).toLocaleString("pt-BR", { minimumFractionDigits: 2 })} />
+                </div>
+              </div>
+              {installments !== originalInstallments && (
+                <p className="text-xs text-muted-foreground">
+                  Alterar o número irá {installments > originalInstallments ? `criar ${installments - originalInstallments} novas parcelas` : `excluir ${originalInstallments - installments} parcelas excedentes`} e reaplicar valor e descrição em todo o grupo.
+                </p>
+              )}
+            </div>
+          )}
+
           {!isEdit && type === "despesa" && (
+
             <>
               <div className="rounded-lg border p-3 space-y-3">
                 <div className="flex items-center justify-between">
