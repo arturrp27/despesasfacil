@@ -236,9 +236,10 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label>Valor *</Label>
+              <Label>{isInstallment && !isEdit ? "Valor da parcela *" : "Valor *"}</Label>
               <Input inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0,00" />
             </div>
+
             <div className="space-y-2">
               <Label>Vencimento *</Label>
               <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
