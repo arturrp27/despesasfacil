@@ -78,6 +78,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
       setCategoryId(""); setStatus("pendente"); setPaymentMethod("pix"); setNotes("");
       setIsInstallment(false); setInstallments(2);
       setIsRecurring(false); setFrequency("mensal"); setCreditCardId("");
+      setGroupInfo(null); setEditScope("one");
       return;
     }
     (async () => {
@@ -90,8 +91,15 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
       setStatus(data.status); setPaymentMethod(data.payment_method ?? "pix");
       setNotes(data.notes ?? "");
       setCreditCardId(data.credit_card_id ?? "");
+      setGroupInfo({
+        installment_group_id: data.installment_group_id ?? null,
+        recurring_rule_id: data.recurring_rule_id ?? null,
+        due_date: data.due_date,
+      });
+      setEditScope("one");
     })();
   }, [open, isEdit, transactionId]);
+
 
   const filteredCats = (categoriesQ.data ?? []).filter(c => c.kind === type || c.kind === "ambos");
 
