@@ -31,7 +31,8 @@ function TransactionsPage() {
   const [search, setSearch] = useState("");
   const [editingId, setEditingId] = useState<string | undefined>();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleteTx, setDeleteTx] = useState<{ id: string; installment_group_id: string | null; recurring_rule_id: string | null; due_date: string } | null>(null);
+
 
   const start = `${year}-${String(month + 1).padStart(2, "0")}-01`;
   const endD = new Date(year, month + 1, 0);
