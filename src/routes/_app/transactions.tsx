@@ -76,14 +76,23 @@ function TransactionsPage() {
     qc.invalidateQueries();
   };
 
-  const removeTx = async () => {
-    if (!deleteId) return;
-    const { error } = await supabase.from("transactions").delete().eq("id", deleteId);
-    setDeleteId(null);
+  const removeTx = async (scope: "one" | "future") => {
+    if (!deleteTx) return;
+    const groupId = deleteTx.installment_group_id ?? deleteTx.recurring_rule_id;
+    let q = supabase.from("transactions").delete();
+    if (scope === "future" && groupId) {
+      const col = deleteTx.installment_group_id ? "installment_group_id" : "recurring_rule_id";
+      q = q.eq(col, groupId).gte("due_date", deleteTx.due_date);
+    } else {
+      q = q.eq("id", deleteTx.id);
+    }
+    const { error } = await q;
+    setDeleteTx(null);
     if (error) return toast.error(error.message);
-    toast.success("Transação excluída.");
+    toast.success(scope === "future" ? "Transações excluídas." : "Transação excluída.");
     qc.invalidateQueries();
   };
+
 
   return (
     <div className="space-y-4">
