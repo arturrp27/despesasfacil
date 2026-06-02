@@ -22,6 +22,8 @@ type Props = {
 
 type CategoryRow = { id: string; name: string; kind: string };
 type CardRow = { id: string; name: string };
+type EditScope = "one" | "future";
+
 
 export function TransactionDialog({ open, onOpenChange, transactionId }: Props) {
   const qc = useQueryClient();
@@ -45,9 +47,12 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
   const [creditCardId, setCreditCardId] = useState<string>("");
 
   const [busy, setBusy] = useState(false);
+  const [groupInfo, setGroupInfo] = useState<{ installment_group_id: string | null; recurring_rule_id: string | null; due_date: string } | null>(null);
+  const [editScope, setEditScope] = useState<EditScope>("one");
 
   const categoriesQ = useQuery({
     queryKey: ["categories"],
+
     queryFn: async () => {
       const { data, error } = await supabase.from("categories").select("id,name,kind").eq("active", true).order("name");
       if (error) throw error;
@@ -73,6 +78,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
       setCategoryId(""); setStatus("pendente"); setPaymentMethod("pix"); setNotes("");
       setIsInstallment(false); setInstallments(2);
       setIsRecurring(false); setFrequency("mensal"); setCreditCardId("");
+      setGroupInfo(null); setEditScope("one");
       return;
     }
     (async () => {
@@ -85,8 +91,15 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
       setStatus(data.status); setPaymentMethod(data.payment_method ?? "pix");
       setNotes(data.notes ?? "");
       setCreditCardId(data.credit_card_id ?? "");
+      setGroupInfo({
+        installment_group_id: data.installment_group_id ?? null,
+        recurring_rule_id: data.recurring_rule_id ?? null,
+        due_date: data.due_date,
+      });
+      setEditScope("one");
     })();
   }, [open, isEdit, transactionId]);
+
 
   const filteredCats = (categoriesQ.data ?? []).filter(c => c.kind === type || c.kind === "ambos");
 
@@ -103,15 +116,30 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
       const user_id = u.user!.id;
 
       if (isEdit) {
-        const { error } = await supabase.from("transactions").update({
+        const patch = {
           type, description, amount: valueNum, due_date: dueDate,
           category_id: categoryId || null, status, payment_method: paymentMethod as never,
           notes: notes || null, credit_card_id: creditCardId || null,
           payment_date: status === "pago" ? toISO(new Date()) : null,
-        }).eq("id", transactionId!);
-        if (error) throw error;
-        toast.success("Transação atualizada.");
+        };
+        const groupId = groupInfo?.installment_group_id ?? groupInfo?.recurring_rule_id ?? null;
+        if (groupId && editScope === "future") {
+          const col = groupInfo?.installment_group_id ? "installment_group_id" : "recurring_rule_id";
+          // Para parcelas/recorrentes, não sobrescrever a data específica nem o número
+          const { due_date: _omit, ...futurePatch } = patch;
+          const { error } = await supabase.from("transactions")
+            .update(futurePatch)
+            .eq(col, groupId)
+            .gte("due_date", groupInfo!.due_date);
+          if (error) throw error;
+          toast.success("Esta e as transações futuras atualizadas.");
+        } else {
+          const { error } = await supabase.from("transactions").update(patch).eq("id", transactionId!);
+          if (error) throw error;
+          toast.success("Transação atualizada.");
+        }
       } else if (isRecurring && type === "despesa") {
+
         const { data: rule, error: ruleErr } = await supabase.from("recurring_rules").insert({
           user_id, description, amount: valueNum, frequency,
           day_of_month: Number(dueDate.slice(8, 10)),
@@ -137,9 +165,10 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
         toast.success("Despesa recorrente criada (12 lançamentos).");
       } else if (isInstallment && type === "despesa") {
         const n = Math.max(2, Math.min(120, installments));
-        const per = Math.round((valueNum / n) * 100) / 100;
+        const per = valueNum; // valor é por parcela
+        const total = Math.round(per * n * 100) / 100;
         const { data: grp, error: grpErr } = await supabase.from("installment_groups").insert({
-          user_id, description, total_amount: valueNum, installments_count: n,
+          user_id, description, total_amount: total, installments_count: n,
           first_due_date: dueDate, category_id: categoryId || null,
           payment_method: paymentMethod as never,
           credit_card_id: creditCardId || null,
@@ -162,7 +191,8 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
         }
         const { error: txErr } = await supabase.from("transactions").insert(rows);
         if (txErr) throw txErr;
-        toast.success(`${n} parcelas criadas.`);
+        toast.success(`${n} parcelas criadas (total ${total.toLocaleString("pt-BR",{minimumFractionDigits:2})}).`);
+
       } else {
         const { error } = await supabase.from("transactions").insert({
           user_id, type, description, amount: valueNum, due_date: dueDate,
@@ -206,9 +236,10 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label>Valor *</Label>
+              <Label>{isInstallment && !isEdit ? "Valor da parcela *" : "Valor *"}</Label>
               <Input inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0,00" />
             </div>
+
             <div className="space-y-2">
               <Label>Vencimento *</Label>
               <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
@@ -283,11 +314,12 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
                       <Input type="number" min={2} max={120} value={installments} onChange={(e) => setInstallments(Number(e.target.value))} />
                     </div>
                     <div className="space-y-2">
-                      <Label>Valor por parcela</Label>
-                      <Input disabled value={(parseAmount(amount) / Math.max(1, installments)).toLocaleString("pt-BR", { minimumFractionDigits: 2 })} />
+                      <Label>Total da compra</Label>
+                      <Input disabled value={(parseAmount(amount) * Math.max(1, installments)).toLocaleString("pt-BR", { minimumFractionDigits: 2 })} />
                     </div>
                   </div>
                 )}
+
               </div>
 
               <div className="rounded-lg border p-3 space-y-3">
@@ -312,6 +344,21 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
               </div>
             </>
           )}
+
+          {isEdit && (groupInfo?.installment_group_id || groupInfo?.recurring_rule_id) && (
+            <div className="rounded-lg border p-3 space-y-2 bg-muted/30">
+              <Label>Aplicar alterações a</Label>
+              <RadioGroup value={editScope} onValueChange={(v) => setEditScope(v as EditScope)} className="flex flex-col gap-2">
+                <label className="flex items-center gap-2 cursor-pointer text-sm">
+                  <RadioGroupItem value="one" /> Somente esta transação
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer text-sm">
+                  <RadioGroupItem value="future" /> Esta e todas as futuras
+                </label>
+              </RadioGroup>
+            </div>
+          )}
+
 
           <div className="space-y-2">
             <Label>Observações</Label>

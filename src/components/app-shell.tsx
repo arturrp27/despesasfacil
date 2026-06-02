@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, ArrowLeftRight, Tags, CreditCard, BarChart3, LogOut, Wallet, Plus, Menu } from "lucide-react";
+import { LayoutDashboard, ArrowLeftRight, Tags, CreditCard, BarChart3, LogOut, Wallet, Plus, Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -69,6 +69,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [txOpen, setTxOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   const logout = async () => {
@@ -78,7 +79,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen flex bg-background">
-      <aside className="hidden md:flex w-64 shrink-0 border-r border-sidebar-border">
+      <aside className={`hidden md:flex shrink-0 border-r border-sidebar-border transition-all duration-200 ${sidebarOpen ? "w-64" : "w-0 border-r-0 overflow-hidden"}`}>
         <SidebarContent onLogout={logout} />
       </aside>
 
@@ -96,7 +97,15 @@ export function AppShell({ children }: { children: ReactNode }) {
             <span className="font-semibold">Controle</span>
           </div>
 
-          <div className="hidden md:block">
+          <div className="hidden md:flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setSidebarOpen((v) => !v)}
+              title={sidebarOpen ? "Ocultar menu" : "Mostrar menu"}
+            >
+              {sidebarOpen ? <PanelLeftClose className="h-5 w-5" /> : <PanelLeftOpen className="h-5 w-5" />}
+            </Button>
             <h1 className="text-lg font-semibold capitalize">
               {nav.find((n) => n.to === pathname)?.label ?? ""}
             </h1>
@@ -106,6 +115,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Plus className="h-4 w-4 mr-1" /> Nova
           </Button>
         </header>
+
 
         <main className="flex-1 p-4 md:p-8 pb-24 md:pb-8">{children}</main>
 

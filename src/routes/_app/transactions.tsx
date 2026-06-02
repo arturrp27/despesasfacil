@@ -31,7 +31,8 @@ function TransactionsPage() {
   const [search, setSearch] = useState("");
   const [editingId, setEditingId] = useState<string | undefined>();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleteTx, setDeleteTx] = useState<{ id: string; installment_group_id: string | null; recurring_rule_id: string | null; due_date: string } | null>(null);
+
 
   const start = `${year}-${String(month + 1).padStart(2, "0")}-01`;
   const endD = new Date(year, month + 1, 0);
@@ -75,14 +76,23 @@ function TransactionsPage() {
     qc.invalidateQueries();
   };
 
-  const removeTx = async () => {
-    if (!deleteId) return;
-    const { error } = await supabase.from("transactions").delete().eq("id", deleteId);
-    setDeleteId(null);
+  const removeTx = async (scope: "one" | "future") => {
+    if (!deleteTx) return;
+    const groupId = deleteTx.installment_group_id ?? deleteTx.recurring_rule_id;
+    let q = supabase.from("transactions").delete();
+    if (scope === "future" && groupId) {
+      const col = deleteTx.installment_group_id ? "installment_group_id" : "recurring_rule_id";
+      q = q.eq(col, groupId).gte("due_date", deleteTx.due_date);
+    } else {
+      q = q.eq("id", deleteTx.id);
+    }
+    const { error } = await q;
+    setDeleteTx(null);
     if (error) return toast.error(error.message);
-    toast.success("Transação excluída.");
+    toast.success(scope === "future" ? "Transações excluídas." : "Transação excluída.");
     qc.invalidateQueries();
   };
+
 
   return (
     <div className="space-y-4">
@@ -166,7 +176,7 @@ function TransactionsPage() {
                 <Button size="icon" variant="ghost" onClick={() => { setEditingId(t.id); setDialogOpen(true); }}>
                   <Pencil className="h-4 w-4" />
                 </Button>
-                <Button size="icon" variant="ghost" onClick={() => setDeleteId(t.id)}>
+                <Button size="icon" variant="ghost" onClick={() => setDeleteTx({ id: t.id, installment_group_id: t.installment_group_id, recurring_rule_id: t.recurring_rule_id, due_date: t.due_date })}>
                   <Trash2 className="h-4 w-4 text-destructive" />
                 </Button>
               </div>
@@ -177,18 +187,30 @@ function TransactionsPage() {
 
       <TransactionDialog open={dialogOpen} onOpenChange={(v) => { setDialogOpen(v); if (!v) setEditingId(undefined); }} transactionId={editingId} />
 
-      <AlertDialog open={!!deleteId} onOpenChange={(v) => !v && setDeleteId(null)}>
+      <AlertDialog open={!!deleteTx} onOpenChange={(v) => !v && setDeleteTx(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Excluir transação?</AlertDialogTitle>
-            <AlertDialogDescription>Esta ação não pode ser desfeita.</AlertDialogDescription>
+            <AlertDialogDescription>
+              {deleteTx && (deleteTx.installment_group_id || deleteTx.recurring_rule_id)
+                ? "Esta transação faz parte de um grupo (parcelamento ou recorrência). Escolha o que excluir."
+                : "Esta ação não pode ser desfeita."}
+            </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={removeTx} className="bg-destructive text-destructive-foreground">Excluir</AlertDialogAction>
+            {deleteTx && (deleteTx.installment_group_id || deleteTx.recurring_rule_id) ? (
+              <>
+                <Button variant="outline" onClick={() => removeTx("one")}>Somente esta</Button>
+                <AlertDialogAction onClick={() => removeTx("future")} className="bg-destructive text-destructive-foreground">Esta e futuras</AlertDialogAction>
+              </>
+            ) : (
+              <AlertDialogAction onClick={() => removeTx("one")} className="bg-destructive text-destructive-foreground">Excluir</AlertDialogAction>
+            )}
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>
+
   );
 }
