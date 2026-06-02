@@ -314,11 +314,12 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
                       <Input type="number" min={2} max={120} value={installments} onChange={(e) => setInstallments(Number(e.target.value))} />
                     </div>
                     <div className="space-y-2">
-                      <Label>Valor por parcela</Label>
-                      <Input disabled value={(parseAmount(amount) / Math.max(1, installments)).toLocaleString("pt-BR", { minimumFractionDigits: 2 })} />
+                      <Label>Total da compra</Label>
+                      <Input disabled value={(parseAmount(amount) * Math.max(1, installments)).toLocaleString("pt-BR", { minimumFractionDigits: 2 })} />
                     </div>
                   </div>
                 )}
+
               </div>
 
               <div className="rounded-lg border p-3 space-y-3">
