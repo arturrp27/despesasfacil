@@ -22,6 +22,8 @@ type Props = {
 
 type CategoryRow = { id: string; name: string; kind: string };
 type CardRow = { id: string; name: string };
+type EditScope = "one" | "future";
+
 
 export function TransactionDialog({ open, onOpenChange, transactionId }: Props) {
   const qc = useQueryClient();
