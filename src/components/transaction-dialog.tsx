@@ -86,7 +86,12 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
     (async () => {
       const { data } = await supabase.from("transactions").select("*").eq("id", transactionId!).maybeSingle();
       if (!data) return;
-      setType(data.type); setDescription(data.description);
+      setType(data.type);
+      // Strip "(i/n)" suffix from installment description for editing
+      const baseDesc = data.is_installment
+        ? String(data.description).replace(/\s*\(\d+\/\d+\)\s*$/, "")
+        : data.description;
+      setDescription(baseDesc);
       setAmount(String(data.amount).replace(".", ","));
       setDueDate(data.due_date);
       setCategoryId(data.category_id ?? "");
@@ -99,8 +104,17 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
         due_date: data.due_date,
       });
       setEditScope("one");
+      if (data.is_installment && data.installment_total) {
+        setIsInstallment(true);
+        setInstallments(data.installment_total);
+        setOriginalInstallments(data.installment_total);
+      } else {
+        setIsInstallment(false);
+        setOriginalInstallments(0);
+      }
     })();
   }, [open, isEdit, transactionId]);
+
 
 
   const filteredCats = (categoriesQ.data ?? []).filter(c => c.kind === type || c.kind === "ambos");
