@@ -176,7 +176,7 @@ function TransactionsPage() {
                 <Button size="icon" variant="ghost" onClick={() => { setEditingId(t.id); setDialogOpen(true); }}>
                   <Pencil className="h-4 w-4" />
                 </Button>
-                <Button size="icon" variant="ghost" onClick={() => setDeleteId(t.id)}>
+                <Button size="icon" variant="ghost" onClick={() => setDeleteTx({ id: t.id, installment_group_id: t.installment_group_id, recurring_rule_id: t.recurring_rule_id, due_date: t.due_date })}>
                   <Trash2 className="h-4 w-4 text-destructive" />
                 </Button>
               </div>
@@ -187,18 +187,30 @@ function TransactionsPage() {
 
       <TransactionDialog open={dialogOpen} onOpenChange={(v) => { setDialogOpen(v); if (!v) setEditingId(undefined); }} transactionId={editingId} />
 
-      <AlertDialog open={!!deleteId} onOpenChange={(v) => !v && setDeleteId(null)}>
+      <AlertDialog open={!!deleteTx} onOpenChange={(v) => !v && setDeleteTx(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Excluir transação?</AlertDialogTitle>
-            <AlertDialogDescription>Esta ação não pode ser desfeita.</AlertDialogDescription>
+            <AlertDialogDescription>
+              {deleteTx && (deleteTx.installment_group_id || deleteTx.recurring_rule_id)
+                ? "Esta transação faz parte de um grupo (parcelamento ou recorrência). Escolha o que excluir."
+                : "Esta ação não pode ser desfeita."}
+            </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={removeTx} className="bg-destructive text-destructive-foreground">Excluir</AlertDialogAction>
+            {deleteTx && (deleteTx.installment_group_id || deleteTx.recurring_rule_id) ? (
+              <>
+                <Button variant="outline" onClick={() => removeTx("one")}>Somente esta</Button>
+                <AlertDialogAction onClick={() => removeTx("future")} className="bg-destructive text-destructive-foreground">Esta e futuras</AlertDialogAction>
+              </>
+            ) : (
+              <AlertDialogAction onClick={() => removeTx("one")} className="bg-destructive text-destructive-foreground">Excluir</AlertDialogAction>
+            )}
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>
+
   );
 }
