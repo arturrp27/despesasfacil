@@ -116,15 +116,30 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
       const user_id = u.user!.id;
 
       if (isEdit) {
-        const { error } = await supabase.from("transactions").update({
+        const patch = {
           type, description, amount: valueNum, due_date: dueDate,
           category_id: categoryId || null, status, payment_method: paymentMethod as never,
           notes: notes || null, credit_card_id: creditCardId || null,
           payment_date: status === "pago" ? toISO(new Date()) : null,
-        }).eq("id", transactionId!);
-        if (error) throw error;
-        toast.success("Transação atualizada.");
+        };
+        const groupId = groupInfo?.installment_group_id ?? groupInfo?.recurring_rule_id ?? null;
+        if (groupId && editScope === "future") {
+          const col = groupInfo?.installment_group_id ? "installment_group_id" : "recurring_rule_id";
+          // Para parcelas/recorrentes, não sobrescrever a data específica nem o número
+          const { due_date: _omit, ...futurePatch } = patch;
+          const { error } = await supabase.from("transactions")
+            .update(futurePatch)
+            .eq(col, groupId)
+            .gte("due_date", groupInfo!.due_date);
+          if (error) throw error;
+          toast.success("Esta e as transações futuras atualizadas.");
+        } else {
+          const { error } = await supabase.from("transactions").update(patch).eq("id", transactionId!);
+          if (error) throw error;
+          toast.success("Transação atualizada.");
+        }
       } else if (isRecurring && type === "despesa") {
+
         const { data: rule, error: ruleErr } = await supabase.from("recurring_rules").insert({
           user_id, description, amount: valueNum, frequency,
           day_of_month: Number(dueDate.slice(8, 10)),
