@@ -47,8 +47,9 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
   const [creditCardId, setCreditCardId] = useState<string>("");
 
   const [busy, setBusy] = useState(false);
+  const [groupInfo, setGroupInfo] = useState<{ installment_group_id: string | null; recurring_rule_id: string | null; due_date: string } | null>(null);
+  const [editScope, setEditScope] = useState<EditScope>("one");
 
-  const categoriesQ = useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
       const { data, error } = await supabase.from("categories").select("id,name,kind").eq("active", true).order("name");
