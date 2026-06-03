@@ -153,7 +153,7 @@ function TransactionsPage() {
               : "";
           return (
           <Card key={t.id} className={cardTone}>
-            <CardContent className="p-4 flex items-center gap-3">
+            <CardContent className="p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
               <div
                 className="h-10 w-10 rounded-lg flex items-center justify-center text-white text-xs font-medium shrink-0"
                 style={{ backgroundColor: t.categories?.color ?? (t.type === "receita" ? "#22c55e" : "#ef4444") }}
