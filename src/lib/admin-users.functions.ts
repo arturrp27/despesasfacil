@@ -46,3 +46,25 @@ export const listAppUsers = createServerFn({ method: "GET" })
       created_at: u.created_at,
     }));
   });
+
+const PasswordInput = z.object({
+  user_id: z.string().uuid(),
+  password: z.string().min(6).max(128),
+});
+
+export const updateAppUserPassword = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => PasswordInput.parse(d))
+  .handler(async ({ data }) => {
+    const { createClient } = await import("@supabase/supabase-js");
+    const admin = createClient(
+      process.env.SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { autoRefreshToken: false, persistSession: false } },
+    );
+    const { error } = await admin.auth.admin.updateUserById(data.user_id, {
+      password: data.password,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
