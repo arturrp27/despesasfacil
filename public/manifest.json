@@ -1,0 +1,16 @@
+{
+  "name": "Controle Financeiro Pessoal",
+  "short_name": "Controle",
+  "description": "Suas finanças pessoais, no controle.",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#1e1b4b",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

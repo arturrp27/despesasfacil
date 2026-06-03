@@ -96,17 +96,17 @@ function TransactionsPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="relative flex-1 min-w-[200px]">
+      <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-2">
+        <div className="relative col-span-2 md:flex-1 md:min-w-[200px]">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input className="pl-8" placeholder="Buscar por descrição..." value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
         <Select value={String(month)} onValueChange={(v) => setMonth(Number(v))}>
-          <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full md:w-32"><SelectValue /></SelectTrigger>
           <SelectContent>{monthsPT.map((m, i) => <SelectItem key={m} value={String(i)}>{m}</SelectItem>)}</SelectContent>
         </Select>
         <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
-          <SelectTrigger className="w-24"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full md:w-24"><SelectValue /></SelectTrigger>
           <SelectContent>
             {Array.from({ length: 6 }, (_, i) => now.getFullYear() - 2 + i).map((y) => (
               <SelectItem key={y} value={String(y)}>{y}</SelectItem>
@@ -114,7 +114,7 @@ function TransactionsPage() {
           </SelectContent>
         </Select>
         <Select value={type} onValueChange={setType}>
-          <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full md:w-32"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="todos">Todos tipos</SelectItem>
             <SelectItem value="receita">Receitas</SelectItem>
@@ -122,7 +122,7 @@ function TransactionsPage() {
           </SelectContent>
         </Select>
         <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full md:w-32"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="todos">Todos status</SelectItem>
             <SelectItem value="pago">Pagas</SelectItem>
@@ -130,7 +130,7 @@ function TransactionsPage() {
           </SelectContent>
         </Select>
         <Select value={category} onValueChange={setCategory}>
-          <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="col-span-2 w-full md:w-40"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="todos">Todas categorias</SelectItem>
             {(catsQ.data ?? []).map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
@@ -153,7 +153,7 @@ function TransactionsPage() {
               : "";
           return (
           <Card key={t.id} className={cardTone}>
-            <CardContent className="p-4 flex items-center gap-3">
+            <CardContent className="p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
               <div
                 className="h-10 w-10 rounded-lg flex items-center justify-center text-white text-xs font-medium shrink-0"
                 style={{ backgroundColor: t.categories?.color ?? (t.type === "receita" ? "#22c55e" : "#ef4444") }}
