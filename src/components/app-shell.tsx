@@ -1,10 +1,11 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, ArrowLeftRight, Tags, CreditCard, BarChart3, LogOut, Wallet, Plus, Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { LayoutDashboard, ArrowLeftRight, Tags, CreditCard, BarChart3, LogOut, Wallet, Plus, Menu, PanelLeftClose, PanelLeftOpen, Users, Moon, Sun } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { TransactionDialog } from "@/components/transaction-dialog";
+import { useTheme } from "@/hooks/use-theme";
 
 const nav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -12,6 +13,7 @@ const nav = [
   { to: "/categories", label: "Categorias", icon: Tags },
   { to: "/cards", label: "Cartões", icon: CreditCard },
   { to: "/reports", label: "Relatórios", icon: BarChart3 },
+  { to: "/users", label: "Usuários", icon: Users },
 ];
 
 function NavList({ onClick }: { onClick?: () => void }) {
@@ -111,9 +113,12 @@ export function AppShell({ children }: { children: ReactNode }) {
             </h1>
           </div>
 
-          <Button onClick={() => setTxOpen(true)} className="rounded-full" size="sm">
-            <Plus className="h-4 w-4 mr-1" /> Nova
-          </Button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Button onClick={() => setTxOpen(true)} className="rounded-full" size="sm">
+              <Plus className="h-4 w-4 mr-1" /> Nova
+            </Button>
+          </div>
         </header>
 
 
