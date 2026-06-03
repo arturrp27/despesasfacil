@@ -142,8 +142,17 @@ function TransactionsPage() {
         {filtered.length === 0 && (
           <Card><CardContent className="p-8 text-center text-muted-foreground">Nenhuma transação encontrada.</CardContent></Card>
         )}
-        {filtered.map((t) => (
-          <Card key={t.id}>
+        {filtered.map((t) => {
+          const todayISO = toISO(new Date());
+          const isOverdue = t.status === "pendente" && t.type === "despesa" && t.due_date < todayISO;
+          const isPaid = t.status === "pago";
+          const cardTone = isPaid
+            ? "bg-success/10 border-success/30"
+            : isOverdue
+              ? "bg-destructive/10 border-destructive/30"
+              : "";
+          return (
+          <Card key={t.id} className={cardTone}>
             <CardContent className="p-4 flex items-center gap-3">
               <div
                 className="h-10 w-10 rounded-lg flex items-center justify-center text-white text-xs font-medium shrink-0"
@@ -182,7 +191,8 @@ function TransactionsPage() {
               </div>
             </CardContent>
           </Card>
-        ))}
+          );
+        })}
       </div>
 
       <TransactionDialog open={dialogOpen} onOpenChange={(v) => { setDialogOpen(v); if (!v) setEditingId(undefined); }} transactionId={editingId} />

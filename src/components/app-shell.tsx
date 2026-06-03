@@ -1,10 +1,11 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, ArrowLeftRight, Tags, CreditCard, BarChart3, LogOut, Wallet, Plus, Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { LayoutDashboard, ArrowLeftRight, Tags, CreditCard, BarChart3, LogOut, Wallet, Plus, Menu, PanelLeftClose, PanelLeftOpen, Users, Moon, Sun } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { TransactionDialog } from "@/components/transaction-dialog";
+import { useTheme } from "@/hooks/use-theme";
 
 const nav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -12,6 +13,7 @@ const nav = [
   { to: "/categories", label: "Categorias", icon: Tags },
   { to: "/cards", label: "Cartões", icon: CreditCard },
   { to: "/reports", label: "Relatórios", icon: BarChart3 },
+  { to: "/users", label: "Usuários", icon: Users },
 ];
 
 function NavList({ onClick }: { onClick?: () => void }) {
@@ -65,6 +67,15 @@ function SidebarContent({ onLogout, onNavigate }: { onLogout: () => void; onNavi
   );
 }
 
+function ThemeToggle() {
+  const { theme, toggle } = useTheme();
+  return (
+    <Button variant="ghost" size="icon" onClick={toggle} title={theme === "dark" ? "Modo claro" : "Modo escuro"}>
+      {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+    </Button>
+  );
+}
+
 export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -111,9 +122,12 @@ export function AppShell({ children }: { children: ReactNode }) {
             </h1>
           </div>
 
-          <Button onClick={() => setTxOpen(true)} className="rounded-full" size="sm">
-            <Plus className="h-4 w-4 mr-1" /> Nova
-          </Button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Button onClick={() => setTxOpen(true)} className="rounded-full" size="sm">
+              <Plus className="h-4 w-4 mr-1" /> Nova
+            </Button>
+          </div>
         </header>
 
 
@@ -121,7 +135,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         {/* Bottom nav mobile */}
         <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 border-t bg-background/95 backdrop-blur">
-          <div className="grid grid-cols-5">
+          <div className="grid grid-cols-6">
             {nav.map((item) => {
               const active = pathname === item.to;
               return (
