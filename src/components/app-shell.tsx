@@ -67,6 +67,15 @@ function SidebarContent({ onLogout, onNavigate }: { onLogout: () => void; onNavi
   );
 }
 
+function ThemeToggle() {
+  const { theme, toggle } = useTheme();
+  return (
+    <Button variant="ghost" size="icon" onClick={toggle} title={theme === "dark" ? "Modo claro" : "Modo escuro"}>
+      {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+    </Button>
+  );
+}
+
 export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -126,7 +135,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         {/* Bottom nav mobile */}
         <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 border-t bg-background/95 backdrop-blur">
-          <div className="grid grid-cols-5">
+          <div className="grid grid-cols-6">
             {nav.map((item) => {
               const active = pathname === item.to;
               return (
