@@ -181,7 +181,7 @@ function ReportsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-base">
-              Despesas por categoria {mode === "month" ? `(${monthsPT[month]} ${year})` : `(${year})`}
+              Despesas por categoria {mode === "month" ? `(${monthsPT[mFrom]}${mFrom !== mTo ? ` – ${monthsPT[mTo]}` : ""} ${year})` : `(${year})`}
             </CardTitle>
           </CardHeader>
           <CardContent className="h-72">
