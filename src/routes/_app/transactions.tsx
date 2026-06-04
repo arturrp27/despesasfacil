@@ -69,6 +69,13 @@ function TransactionsPage() {
     });
   }, [txQ.data, type, status, category, search]);
 
+  const monthSummary = useMemo(() => {
+    const list = (txQ.data ?? []).filter((t) => t.type === "despesa");
+    const total = list.reduce((a, b) => a + Number(b.amount), 0);
+    const pago = list.filter((t) => t.status === "pago").reduce((a, b) => a + Number(b.amount), 0);
+    return { total, pago, devedor: total - pago };
+  }, [txQ.data]);
+
   const markPaid = async (id: string) => {
     const { error } = await supabase.from("transactions").update({ status: "pago", payment_date: toISO(new Date()) }).eq("id", id);
     if (error) return toast.error(error.message);
