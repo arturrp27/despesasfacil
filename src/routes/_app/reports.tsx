@@ -111,12 +111,21 @@ function ReportsPage() {
               <Button variant={mode === "year" ? "default" : "outline"} size="sm" onClick={() => setMode("year")}>Anual</Button>
             </div>
             {mode === "month" && (
-              <Select value={String(month)} onValueChange={(v) => setMonth(Number(v))}>
-                <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {monthsPT.map((m, i) => <SelectItem key={m} value={String(i)}>{m}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <>
+                <Select value={String(monthFrom)} onValueChange={(v) => setMonthFrom(Number(v))}>
+                  <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {monthsPT.map((m, i) => <SelectItem key={`f-${m}`} value={String(i)}>{m}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                <span className="text-sm text-muted-foreground">até</span>
+                <Select value={String(monthTo)} onValueChange={(v) => setMonthTo(Number(v))}>
+                  <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {monthsPT.map((m, i) => <SelectItem key={`t-${m}`} value={String(i)}>{m}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </>
             )}
             <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
               <SelectTrigger className="w-24"><SelectValue /></SelectTrigger>
