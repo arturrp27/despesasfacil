@@ -103,6 +103,27 @@ function TransactionsPage() {
 
   return (
     <div className="space-y-4">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
+        <Card>
+          <CardContent className="p-3 sm:p-4">
+            <div className="text-[11px] sm:text-xs text-muted-foreground">Despesas do mês</div>
+            <div className="mt-1 text-base sm:text-xl font-semibold text-expense">{formatBRL(monthSummary.total)}</div>
+          </CardContent>
+        </Card>
+        <Card className="bg-success/10 border-success/30 dark:bg-success/15 dark:border-success/40">
+          <CardContent className="p-3 sm:p-4">
+            <div className="text-[11px] sm:text-xs text-muted-foreground">Já pago</div>
+            <div className="mt-1 text-base sm:text-xl font-semibold text-success">{formatBRL(monthSummary.pago)}</div>
+          </CardContent>
+        </Card>
+        <Card className="bg-destructive/10 border-destructive/30 dark:bg-destructive/20 dark:border-destructive/50">
+          <CardContent className="p-3 sm:p-4">
+            <div className="text-[11px] sm:text-xs text-muted-foreground">Ainda a pagar</div>
+            <div className="mt-1 text-base sm:text-xl font-semibold text-destructive">{formatBRL(monthSummary.devedor)}</div>
+          </CardContent>
+        </Card>
+      </div>
+
       <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-2">
         <div className="relative col-span-2 md:flex-1 md:min-w-[200px]">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
