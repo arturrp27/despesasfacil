@@ -21,12 +21,15 @@ function ReportsPage() {
   const now = new Date();
   const [mode, setMode] = useState<PeriodMode>("month");
   const [year, setYear] = useState(now.getFullYear());
-  const [month, setMonth] = useState(now.getMonth());
+  const [monthFrom, setMonthFrom] = useState(now.getMonth());
+  const [monthTo, setMonthTo] = useState(now.getMonth());
 
   const pad = (n: number) => String(n).padStart(2, "0");
-  const lastDay = new Date(year, month + 1, 0).getDate();
-  const startMonth = `${year}-${pad(month + 1)}-01`;
-  const endMonth = `${year}-${pad(month + 1)}-${pad(lastDay)}`;
+  const mFrom = Math.min(monthFrom, monthTo);
+  const mTo = Math.max(monthFrom, monthTo);
+  const lastDay = new Date(year, mTo + 1, 0).getDate();
+  const startMonth = `${year}-${pad(mFrom + 1)}-01`;
+  const endMonth = `${year}-${pad(mTo + 1)}-${pad(lastDay)}`;
 
   const yearStart = `${year}-01-01`;
   const yearEnd = `${year}-12-31`;
@@ -55,6 +58,7 @@ function ReportsPage() {
       return data ?? [];
     },
   });
+
 
   const periodData = mode === "month" ? (monthQ.data ?? []) : (yearQ.data ?? []);
 
@@ -107,12 +111,21 @@ function ReportsPage() {
               <Button variant={mode === "year" ? "default" : "outline"} size="sm" onClick={() => setMode("year")}>Anual</Button>
             </div>
             {mode === "month" && (
-              <Select value={String(month)} onValueChange={(v) => setMonth(Number(v))}>
-                <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {monthsPT.map((m, i) => <SelectItem key={m} value={String(i)}>{m}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <>
+                <Select value={String(monthFrom)} onValueChange={(v) => setMonthFrom(Number(v))}>
+                  <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {monthsPT.map((m, i) => <SelectItem key={`f-${m}`} value={String(i)}>{m}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                <span className="text-sm text-muted-foreground">até</span>
+                <Select value={String(monthTo)} onValueChange={(v) => setMonthTo(Number(v))}>
+                  <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {monthsPT.map((m, i) => <SelectItem key={`t-${m}`} value={String(i)}>{m}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </>
             )}
             <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
               <SelectTrigger className="w-24"><SelectValue /></SelectTrigger>
@@ -168,7 +181,7 @@ function ReportsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-base">
-              Despesas por categoria {mode === "month" ? `(${monthsPT[month]} ${year})` : `(${year})`}
+              Despesas por categoria {mode === "month" ? `(${monthsPT[mFrom]}${mFrom !== mTo ? ` – ${monthsPT[mTo]}` : ""} ${year})` : `(${year})`}
             </CardTitle>
           </CardHeader>
           <CardContent className="h-72">
@@ -188,7 +201,7 @@ function ReportsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-base">
-              Maiores despesas {mode === "month" ? `(${monthsPT[month]} ${year})` : `(${year})`}
+              Maiores despesas {mode === "month" ? `(${monthsPT[mFrom]}${mFrom !== mTo ? ` – ${monthsPT[mTo]}` : ""} ${year})` : `(${year})`}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
