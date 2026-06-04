@@ -23,18 +23,22 @@ function ReportsPage() {
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth());
 
-  const startMonth = `${year}-${String(month + 1).padStart(2, "0")}-01`;
-  const endMonth = `${year}-${String(month + 1).padStart(2, "0")}-31`;
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const lastDay = new Date(year, month + 1, 0).getDate();
+  const startMonth = `${year}-${pad(month + 1)}-01`;
+  const endMonth = `${year}-${pad(month + 1)}-${pad(lastDay)}`;
 
   const yearStart = `${year}-01-01`;
   const yearEnd = `${year}-12-31`;
+
+  const selectCols = "amount,type,status,description,due_date,categories(name,color)";
 
   const monthQ = useQuery({
     queryKey: ["reports-month", startMonth, endMonth],
     queryFn: async () => {
       const { data } = await supabase
         .from("transactions")
-        .select("amount,type,status,description,categories(name,color)")
+        .select(selectCols)
         .gte("due_date", startMonth).lte("due_date", endMonth);
       return data ?? [];
     },
@@ -45,7 +49,7 @@ function ReportsPage() {
     queryFn: async () => {
       const { data } = await supabase
         .from("transactions")
-        .select("amount,type,due_date")
+        .select(selectCols)
         .gte("due_date", yearStart)
         .lte("due_date", yearEnd);
       return data ?? [];
