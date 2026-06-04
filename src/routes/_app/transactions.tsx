@@ -147,9 +147,9 @@ function TransactionsPage() {
           const isOverdue = t.status === "pendente" && t.type === "despesa" && t.due_date < todayISO;
           const isPaid = t.status === "pago";
           const cardTone = isPaid
-            ? "bg-success/10 border-success/30"
+            ? "bg-success/15 border-success/40 dark:bg-success/20 dark:border-success/50"
             : isOverdue
-              ? "bg-destructive/10 border-destructive/30"
+              ? "bg-destructive/15 border-destructive/40 dark:bg-destructive/25 dark:border-destructive/60"
               : "";
           return (
           <Card key={t.id} className={cardTone}>
