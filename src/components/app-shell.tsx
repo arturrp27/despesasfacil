@@ -131,37 +131,20 @@ export function AppShell({ children }: { children: ReactNode }) {
         </header>
 
 
-        <main className="flex-1 p-4 md:p-8 pb-24 md:pb-8">{children}</main>
+        <main className="flex-1 p-4 md:p-8">{children}</main>
 
-        {/* Bottom nav mobile */}
-        <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 border-t bg-background/95 backdrop-blur">
-          <div className="grid grid-cols-6">
-            {nav.map((item) => {
-              const active = pathname === item.to;
-              return (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  className={`flex flex-col items-center gap-1 py-2 px-1 min-w-0 text-[10px] ${
-                    active ? "text-foreground" : "text-muted-foreground"
-                  }`}
-                >
-                  <item.icon className={`h-5 w-5 shrink-0 ${active ? "text-success" : ""}`} />
-                  <span className="truncate max-w-full">{item.label}</span>
-                </Link>
-              );
-            })}
-          </div>
-        </nav>
+
+
 
         {/* Floating action mobile */}
         <Button
           onClick={() => setTxOpen(true)}
-          className="md:hidden fixed bottom-20 right-4 h-14 w-14 rounded-full shadow-lg z-40"
+          className="md:hidden fixed bottom-4 right-4 h-14 w-14 rounded-full shadow-lg z-40"
           size="icon"
         >
           <Plus className="h-6 w-6" />
         </Button>
+
 
         <TransactionDialog open={txOpen} onOpenChange={setTxOpen} />
       </div>
