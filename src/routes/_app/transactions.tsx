@@ -181,7 +181,7 @@ function TransactionsPage() {
               : "";
           return (
           <Card key={t.id} className={cardTone}>
-            <CardContent className="p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+            <CardContent className="p-3 sm:p-4 flex items-start sm:items-center gap-2 sm:gap-3">
               <div
                 className="h-10 w-10 rounded-lg flex items-center justify-center text-white text-xs font-medium shrink-0"
                 style={{ backgroundColor: t.categories?.color ?? (t.type === "receita" ? "#22c55e" : "#ef4444") }}
@@ -189,31 +189,34 @@ function TransactionsPage() {
                 {(t.categories?.name ?? "•").slice(0, 2).toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-medium truncate">{t.description}</span>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="font-medium truncate max-w-full">{t.description}</span>
                   {t.is_installment && <Badge variant="outline" className="text-[10px] gap-1"><Layers className="h-3 w-3" />Parcela</Badge>}
                   {t.is_recurring && <Badge variant="outline" className="text-[10px] gap-1"><Repeat className="h-3 w-3" />Recorrente</Badge>}
                   <Badge variant={t.status === "pago" ? "secondary" : "outline"} className="text-[10px]">
                     {t.status === "pago" ? "Pago" : "Pendente"}
                   </Badge>
                 </div>
-                <div className="text-xs text-muted-foreground mt-0.5">
+                <div className="text-xs text-muted-foreground mt-0.5 truncate">
                   {t.categories?.name ?? "Sem categoria"} • Vence {formatDateBR(t.due_date)}
                 </div>
+                <div className={`sm:hidden mt-1 font-semibold text-sm ${t.type === "receita" ? "text-income" : "text-expense"}`}>
+                  {t.type === "despesa" ? "-" : "+"}{formatBRL(t.amount)}
+                </div>
               </div>
-              <div className={`text-right shrink-0 ${t.type === "receita" ? "text-income" : "text-expense"}`}>
+              <div className={`hidden sm:block text-right shrink-0 ${t.type === "receita" ? "text-income" : "text-expense"}`}>
                 <div className="font-semibold">{t.type === "despesa" ? "-" : "+"}{formatBRL(t.amount)}</div>
               </div>
-              <div className="flex gap-1 shrink-0">
+              <div className="flex gap-0.5 sm:gap-1 shrink-0">
                 {t.status === "pendente" && (
-                  <Button size="icon" variant="ghost" onClick={() => markPaid(t.id)} title="Marcar como pago">
+                  <Button size="icon" variant="ghost" className="h-8 w-8 sm:h-9 sm:w-9" onClick={() => markPaid(t.id)} title="Marcar como pago">
                     <Check className="h-4 w-4 text-success" />
                   </Button>
                 )}
-                <Button size="icon" variant="ghost" onClick={() => { setEditingId(t.id); setDialogOpen(true); }}>
+                <Button size="icon" variant="ghost" className="h-8 w-8 sm:h-9 sm:w-9" onClick={() => { setEditingId(t.id); setDialogOpen(true); }}>
                   <Pencil className="h-4 w-4" />
                 </Button>
-                <Button size="icon" variant="ghost" onClick={() => setDeleteTx({ id: t.id, installment_group_id: t.installment_group_id, recurring_rule_id: t.recurring_rule_id, due_date: t.due_date })}>
+                <Button size="icon" variant="ghost" className="h-8 w-8 sm:h-9 sm:w-9" onClick={() => setDeleteTx({ id: t.id, installment_group_id: t.installment_group_id, recurring_rule_id: t.recurring_rule_id, due_date: t.due_date })}>
                   <Trash2 className="h-4 w-4 text-destructive" />
                 </Button>
               </div>
