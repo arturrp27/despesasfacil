@@ -14,10 +14,12 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppUsersRouteImport } from './routes/_app/users'
 import { Route as AppTransactionsRouteImport } from './routes/_app/transactions'
+import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppReportsRouteImport } from './routes/_app/reports'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as AppCategoriesRouteImport } from './routes/_app/categories'
 import { Route as AppCardsRouteImport } from './routes/_app/cards'
+import { Route as ApiPublicHooksNotifyDueRouteImport } from './routes/api/public/hooks/notify-due'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -43,6 +45,11 @@ const AppTransactionsRoute = AppTransactionsRouteImport.update({
   path: '/transactions',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppReportsRoute = AppReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
@@ -63,6 +70,11 @@ const AppCardsRoute = AppCardsRouteImport.update({
   path: '/cards',
   getParentRoute: () => AppRoute,
 } as any)
+const ApiPublicHooksNotifyDueRoute = ApiPublicHooksNotifyDueRouteImport.update({
+  id: '/api/public/hooks/notify-due',
+  path: '/api/public/hooks/notify-due',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -71,8 +83,10 @@ export interface FileRoutesByFullPath {
   '/categories': typeof AppCategoriesRoute
   '/dashboard': typeof AppDashboardRoute
   '/reports': typeof AppReportsRoute
+  '/settings': typeof AppSettingsRoute
   '/transactions': typeof AppTransactionsRoute
   '/users': typeof AppUsersRoute
+  '/api/public/hooks/notify-due': typeof ApiPublicHooksNotifyDueRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -81,8 +95,10 @@ export interface FileRoutesByTo {
   '/categories': typeof AppCategoriesRoute
   '/dashboard': typeof AppDashboardRoute
   '/reports': typeof AppReportsRoute
+  '/settings': typeof AppSettingsRoute
   '/transactions': typeof AppTransactionsRoute
   '/users': typeof AppUsersRoute
+  '/api/public/hooks/notify-due': typeof ApiPublicHooksNotifyDueRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -93,8 +109,10 @@ export interface FileRoutesById {
   '/_app/categories': typeof AppCategoriesRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/reports': typeof AppReportsRoute
+  '/_app/settings': typeof AppSettingsRoute
   '/_app/transactions': typeof AppTransactionsRoute
   '/_app/users': typeof AppUsersRoute
+  '/api/public/hooks/notify-due': typeof ApiPublicHooksNotifyDueRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -105,8 +123,10 @@ export interface FileRouteTypes {
     | '/categories'
     | '/dashboard'
     | '/reports'
+    | '/settings'
     | '/transactions'
     | '/users'
+    | '/api/public/hooks/notify-due'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -115,8 +135,10 @@ export interface FileRouteTypes {
     | '/categories'
     | '/dashboard'
     | '/reports'
+    | '/settings'
     | '/transactions'
     | '/users'
+    | '/api/public/hooks/notify-due'
   id:
     | '__root__'
     | '/'
@@ -126,14 +148,17 @@ export interface FileRouteTypes {
     | '/_app/categories'
     | '/_app/dashboard'
     | '/_app/reports'
+    | '/_app/settings'
     | '/_app/transactions'
     | '/_app/users'
+    | '/api/public/hooks/notify-due'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiPublicHooksNotifyDueRoute: typeof ApiPublicHooksNotifyDueRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -173,6 +198,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTransactionsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/settings': {
+      id: '/_app/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/reports': {
       id: '/_app/reports'
       path: '/reports'
@@ -201,6 +233,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCardsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/api/public/hooks/notify-due': {
+      id: '/api/public/hooks/notify-due'
+      path: '/api/public/hooks/notify-due'
+      fullPath: '/api/public/hooks/notify-due'
+      preLoaderRoute: typeof ApiPublicHooksNotifyDueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -209,6 +248,7 @@ interface AppRouteChildren {
   AppCategoriesRoute: typeof AppCategoriesRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppReportsRoute: typeof AppReportsRoute
+  AppSettingsRoute: typeof AppSettingsRoute
   AppTransactionsRoute: typeof AppTransactionsRoute
   AppUsersRoute: typeof AppUsersRoute
 }
@@ -218,6 +258,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCategoriesRoute: AppCategoriesRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppReportsRoute: AppReportsRoute,
+  AppSettingsRoute: AppSettingsRoute,
   AppTransactionsRoute: AppTransactionsRoute,
   AppUsersRoute: AppUsersRoute,
 }
@@ -228,7 +269,18 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiPublicHooksNotifyDueRoute: ApiPublicHooksNotifyDueRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
