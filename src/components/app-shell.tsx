@@ -18,14 +18,6 @@ const nav = [
   { to: "/settings", label: "Configurações", icon: Settings },
 ];
 
-const nav = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/transactions", label: "Transações", icon: ArrowLeftRight },
-  { to: "/categories", label: "Categorias", icon: Tags },
-  { to: "/cards", label: "Cartões", icon: CreditCard },
-  { to: "/reports", label: "Relatórios", icon: BarChart3 },
-  { to: "/users", label: "Usuários", icon: Users },
-];
 
 function NavList({ onClick }: { onClick?: () => void }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
