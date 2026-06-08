@@ -172,6 +172,50 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          dedupe_key: string | null
+          id: string
+          kind: string
+          read_at: string | null
+          title: string
+          transaction_id: string | null
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          dedupe_key?: string | null
+          id?: string
+          kind: string
+          read_at?: string | null
+          title: string
+          transaction_id?: string | null
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          dedupe_key?: string | null
+          id?: string
+          kind?: string
+          read_at?: string | null
+          title?: string
+          transaction_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -368,11 +412,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_settings: {
+        Row: {
+          created_at: string
+          days_before_due: number
+          notify_due: boolean
+          notify_new_transactions: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          days_before_due?: number
+          notify_due?: boolean
+          notify_new_transactions?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          days_before_due?: number
+          notify_due?: boolean
+          notify_new_transactions?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      generate_due_notifications: { Args: never; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
