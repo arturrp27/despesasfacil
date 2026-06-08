@@ -251,6 +251,12 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
         }
         const { error: txErr } = await supabase.from("transactions").insert(rows);
         if (txErr) throw txErr;
+        await supabase.from("notifications").insert({
+          user_id, kind: "new_transaction",
+          title: "Recorrência criada",
+          body: `${description} • 12 lançamentos gerados`,
+          dedupe_key: `rec:${rule.id}`,
+        });
         toast.success("Despesa recorrente criada (12 lançamentos).");
       } else if (isInstallment && type === "despesa") {
         const n = Math.max(2, Math.min(120, installments));
@@ -280,6 +286,12 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
         }
         const { error: txErr } = await supabase.from("transactions").insert(rows);
         if (txErr) throw txErr;
+        await supabase.from("notifications").insert({
+          user_id, kind: "new_transaction",
+          title: "Parcelamento criado",
+          body: `${description} • ${n}x de R$ ${per.toLocaleString("pt-BR",{minimumFractionDigits:2})}`,
+          dedupe_key: `inst:${grp.id}`,
+        });
         toast.success(`${n} parcelas criadas (total ${total.toLocaleString("pt-BR",{minimumFractionDigits:2})}).`);
 
       } else {

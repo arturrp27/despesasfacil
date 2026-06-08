@@ -1,10 +1,11 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, ArrowLeftRight, Tags, CreditCard, BarChart3, LogOut, Wallet, Plus, Menu, PanelLeftClose, PanelLeftOpen, Users, Moon, Sun } from "lucide-react";
+import { LayoutDashboard, ArrowLeftRight, Tags, CreditCard, BarChart3, LogOut, Wallet, Plus, Menu, PanelLeftClose, PanelLeftOpen, Users, Moon, Sun, Settings } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { TransactionDialog } from "@/components/transaction-dialog";
+import { NotificationBell } from "@/components/notification-bell";
 import { useTheme } from "@/hooks/use-theme";
 
 const nav = [
@@ -14,7 +15,9 @@ const nav = [
   { to: "/cards", label: "Cartões", icon: CreditCard },
   { to: "/reports", label: "Relatórios", icon: BarChart3 },
   { to: "/users", label: "Usuários", icon: Users },
+  { to: "/settings", label: "Configurações", icon: Settings },
 ];
+
 
 function NavList({ onClick }: { onClick?: () => void }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -123,6 +126,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
 
           <div className="flex items-center gap-2">
+            <NotificationBell />
             <ThemeToggle />
             <Button onClick={() => setTxOpen(true)} className="rounded-full" size="sm">
               <Plus className="h-4 w-4 mr-1" /> Nova
