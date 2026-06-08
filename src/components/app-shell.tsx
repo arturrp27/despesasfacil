@@ -1,11 +1,22 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, ArrowLeftRight, Tags, CreditCard, BarChart3, LogOut, Wallet, Plus, Menu, PanelLeftClose, PanelLeftOpen, Users, Moon, Sun } from "lucide-react";
+import { LayoutDashboard, ArrowLeftRight, Tags, CreditCard, BarChart3, LogOut, Wallet, Plus, Menu, PanelLeftClose, PanelLeftOpen, Users, Moon, Sun, Settings } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { TransactionDialog } from "@/components/transaction-dialog";
+import { NotificationBell } from "@/components/notification-bell";
 import { useTheme } from "@/hooks/use-theme";
+
+const nav = [
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/transactions", label: "Transações", icon: ArrowLeftRight },
+  { to: "/categories", label: "Categorias", icon: Tags },
+  { to: "/cards", label: "Cartões", icon: CreditCard },
+  { to: "/reports", label: "Relatórios", icon: BarChart3 },
+  { to: "/users", label: "Usuários", icon: Users },
+  { to: "/settings", label: "Configurações", icon: Settings },
+];
 
 const nav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
