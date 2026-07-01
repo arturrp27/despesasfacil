@@ -35,6 +35,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
   const [dueDate, setDueDate] = useState(toISO(new Date()));
   const [categoryId, setCategoryId] = useState<string>("");
   const [status, setStatus] = useState<"pendente" | "pago">("pendente");
+  const [paymentDate, setPaymentDate] = useState<string>(toISO(new Date()));
   const [paymentMethod, setPaymentMethod] = useState<string>("pix");
   const [notes, setNotes] = useState("");
 
@@ -77,7 +78,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
     if (!open) return;
     if (!isEdit) {
       setType("despesa"); setDescription(""); setAmount(""); setDueDate(toISO(new Date()));
-      setCategoryId(""); setStatus("pendente"); setPaymentMethod("pix"); setNotes("");
+      setCategoryId(""); setStatus("pendente"); setPaymentDate(toISO(new Date())); setPaymentMethod("pix"); setNotes("");
       setIsInstallment(false); setInstallments(2);
       setIsRecurring(false); setFrequency("mensal"); setCreditCardId("");
       setGroupInfo(null); setEditScope("one");
@@ -96,6 +97,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
       setDueDate(data.due_date);
       setCategoryId(data.category_id ?? "");
       setStatus(data.status); setPaymentMethod(data.payment_method ?? "pix");
+      setPaymentDate(data.payment_date ?? toISO(new Date()));
       setNotes(data.notes ?? "");
       setCreditCardId(data.credit_card_id ?? "");
       setGroupInfo({
@@ -210,7 +212,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
             type, description, amount: valueNum, due_date: dueDate,
             category_id: categoryId || null, status, payment_method: paymentMethod as never,
             notes: notes || null, credit_card_id: creditCardId || null,
-            payment_date: status === "pago" ? toISO(new Date()) : null,
+            payment_date: status === "pago" ? (paymentDate || toISO(new Date())) : null,
           };
           if (groupId && editScope === "future") {
             const col = igId ? "installment_group_id" : "recurring_rule_id";
@@ -299,7 +301,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
           user_id, type, description, amount: valueNum, due_date: dueDate,
           category_id: categoryId || null, status, payment_method: paymentMethod as never,
           notes: notes || null, credit_card_id: creditCardId || null,
-          payment_date: status === "pago" ? toISO(new Date()) : null,
+          payment_date: status === "pago" ? (paymentDate || toISO(new Date())) : null,
         });
         if (error) throw error;
         toast.success("Transação criada.");
@@ -400,6 +402,14 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
               </label>
             </RadioGroup>
           </div>
+
+          {status === "pago" && (
+            <div className="space-y-2">
+              <Label>Data do pagamento</Label>
+              <Input type="date" value={paymentDate} onChange={(e) => setPaymentDate(e.target.value)} />
+              <p className="text-xs text-muted-foreground">Pode ser uma data passada ou futura.</p>
+            </div>
+          )}
 
           {isEdit && isInstallment && groupInfo?.installment_group_id && (
             <div className="rounded-lg border p-3 space-y-3">
