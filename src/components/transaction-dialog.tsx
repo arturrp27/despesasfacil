@@ -78,7 +78,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
     if (!open) return;
     if (!isEdit) {
       setType("despesa"); setDescription(""); setAmount(""); setDueDate(toISO(new Date()));
-      setCategoryId(""); setStatus("pendente"); setPaymentMethod("pix"); setNotes("");
+      setCategoryId(""); setStatus("pendente"); setPaymentDate(toISO(new Date())); setPaymentMethod("pix"); setNotes("");
       setIsInstallment(false); setInstallments(2);
       setIsRecurring(false); setFrequency("mensal"); setCreditCardId("");
       setGroupInfo(null); setEditScope("one");
