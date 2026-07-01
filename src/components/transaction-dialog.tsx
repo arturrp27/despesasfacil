@@ -212,7 +212,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
             type, description, amount: valueNum, due_date: dueDate,
             category_id: categoryId || null, status, payment_method: paymentMethod as never,
             notes: notes || null, credit_card_id: creditCardId || null,
-            payment_date: status === "pago" ? toISO(new Date()) : null,
+            payment_date: status === "pago" ? (paymentDate || toISO(new Date())) : null,
           };
           if (groupId && editScope === "future") {
             const col = igId ? "installment_group_id" : "recurring_rule_id";
