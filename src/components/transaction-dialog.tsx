@@ -97,6 +97,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
       setDueDate(data.due_date);
       setCategoryId(data.category_id ?? "");
       setStatus(data.status); setPaymentMethod(data.payment_method ?? "pix");
+      setPaymentDate(data.payment_date ?? toISO(new Date()));
       setNotes(data.notes ?? "");
       setCreditCardId(data.credit_card_id ?? "");
       setGroupInfo({
