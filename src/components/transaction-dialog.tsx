@@ -301,7 +301,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
           user_id, type, description, amount: valueNum, due_date: dueDate,
           category_id: categoryId || null, status, payment_method: paymentMethod as never,
           notes: notes || null, credit_card_id: creditCardId || null,
-          payment_date: status === "pago" ? toISO(new Date()) : null,
+          payment_date: status === "pago" ? (paymentDate || toISO(new Date())) : null,
         });
         if (error) throw error;
         toast.success("Transação criada.");
