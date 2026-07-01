@@ -403,6 +403,14 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
             </RadioGroup>
           </div>
 
+          {status === "pago" && (
+            <div className="space-y-2">
+              <Label>Data do pagamento</Label>
+              <Input type="date" value={paymentDate} onChange={(e) => setPaymentDate(e.target.value)} />
+              <p className="text-xs text-muted-foreground">Pode ser uma data passada ou futura.</p>
+            </div>
+          )}
+
           {isEdit && isInstallment && groupInfo?.installment_group_id && (
             <div className="rounded-lg border p-3 space-y-3">
               <Label>Parcelamento</Label>
