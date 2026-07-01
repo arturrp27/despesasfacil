@@ -35,6 +35,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
   const [dueDate, setDueDate] = useState(toISO(new Date()));
   const [categoryId, setCategoryId] = useState<string>("");
   const [status, setStatus] = useState<"pendente" | "pago">("pendente");
+  const [paymentDate, setPaymentDate] = useState<string>(toISO(new Date()));
   const [paymentMethod, setPaymentMethod] = useState<string>("pix");
   const [notes, setNotes] = useState("");
 
