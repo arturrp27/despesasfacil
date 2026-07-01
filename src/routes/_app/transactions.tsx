@@ -199,6 +199,9 @@ function TransactionsPage() {
                 </div>
                 <div className="text-xs text-muted-foreground mt-0.5 truncate">
                   {t.categories?.name ?? "Sem categoria"} • Vence {formatDateBR(t.due_date)}
+                  {t.status === "pago" && t.payment_date && (
+                    <> • <span className="text-success">Pago em {formatDateBR(t.payment_date)}</span></>
+                  )}
                 </div>
                 <div className={`sm:hidden mt-1 font-semibold text-sm ${t.type === "receita" ? "text-income" : "text-expense"}`}>
                   {t.type === "despesa" ? "-" : "+"}{formatBRL(t.amount)}
