@@ -197,10 +197,10 @@ function TransactionsPage() {
                     {t.status === "pago" ? "Pago" : "Pendente"}
                   </Badge>
                 </div>
-                <div className="text-xs text-muted-foreground mt-0.5 truncate">
-                  {t.categories?.name ?? "Sem categoria"} • Vence {formatDateBR(t.due_date)}
+                <div className="text-xs text-muted-foreground mt-0.5">
+                  <div className="truncate">{t.categories?.name ?? "Sem categoria"} • Vence {formatDateBR(t.due_date)}</div>
                   {t.status === "pago" && t.payment_date && (
-                    <> • <span className="text-success">Pago em {formatDateBR(t.payment_date)}</span></>
+                    <div className="text-success font-medium">Pago em {formatDateBR(t.payment_date)}</div>
                   )}
                 </div>
                 <div className={`sm:hidden mt-1 font-semibold text-sm ${t.type === "receita" ? "text-income" : "text-expense"}`}>
