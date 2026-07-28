@@ -216,10 +216,10 @@ function TransactionsPage() {
                     <Check className="h-4 w-4 text-success" />
                   </Button>
                 )}
-                <Button size="icon" variant="ghost" className="h-8 w-8 sm:h-9 sm:w-9" onClick={() => { setEditingId(t.id); setDialogOpen(true); }}>
+                <Button size="icon" variant="ghost" className="h-8 w-8 sm:h-9 sm:w-9" onClick={() => { setEditingId(t.id); setDialogOpen(true); }} title="Editar">
                   <Pencil className="h-4 w-4" />
                 </Button>
-                <Button size="icon" variant="ghost" className="h-8 w-8 sm:h-9 sm:w-9" onClick={() => setDeleteTx({ id: t.id, installment_group_id: t.installment_group_id, recurring_rule_id: t.recurring_rule_id, due_date: t.due_date })}>
+                <Button size="icon" variant="ghost" className="h-8 w-8 sm:h-9 sm:w-9" onClick={() => setDeleteTx({ id: t.id, installment_group_id: t.installment_group_id, recurring_rule_id: t.recurring_rule_id, due_date: t.due_date })} title="Excluir">
                   <Trash2 className="h-4 w-4 text-destructive" />
                 </Button>
               </div>
