@@ -486,7 +486,12 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
             </>
           )}
 
-          {isEdit && (groupInfo?.installment_group_id || groupInfo?.recurring_rule_id) && (
+          {isEdit && (
+            groupInfo?.installment_group_id ||
+            groupInfo?.recurring_rule_id ||
+            loadedIsRecurring ||
+            loadedIsInstallment
+          ) && (
             <div className="rounded-lg border p-3 space-y-2 bg-muted/30">
               <Label>Aplicar alterações a</Label>
               <RadioGroup value={editScope} onValueChange={(v) => setEditScope(v as EditScope)} className="flex flex-col gap-2">
