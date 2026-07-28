@@ -417,10 +417,10 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
             loadedIsRecurring ||
             loadedIsInstallment
           ) && (
-            <div className="rounded-lg border border-pending/50 p-3 space-y-2 bg-pending/10">
+            <div className="rounded-lg border border-pending p-3 space-y-2 bg-pending/20">
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 text-pending" />
-                <Label className="text-pending">Aplicar alterações a</Label>
+                <Label className="text-foreground">Aplicar alterações a</Label>
               </div>
               <RadioGroup value={editScope} onValueChange={(v) => setEditScope(v as EditScope)} className="flex flex-col gap-2">
                 <label className="flex items-center gap-2 cursor-pointer text-sm">
