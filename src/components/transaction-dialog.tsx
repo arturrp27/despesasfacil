@@ -85,11 +85,13 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
       setIsInstallment(false); setInstallments(2);
       setIsRecurring(false); setFrequency("mensal"); setCreditCardId("");
       setGroupInfo(null); setEditScope("one");
+      setLoadedIsRecurring(false); setLoadedIsInstallment(false);
       return;
     }
+    let ignore = false;
     (async () => {
       const { data } = await supabase.from("transactions").select("*").eq("id", transactionId!).maybeSingle();
-      if (!data) return;
+      if (!data || ignore) return;
       setType(data.type);
       // Strip "(i/n)" suffix from installment description for editing
       const baseDesc = data.is_installment
@@ -109,6 +111,8 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
         due_date: data.due_date,
       });
       setEditScope("one");
+      setLoadedIsRecurring(data.is_recurring ?? false);
+      setLoadedIsInstallment(data.is_installment ?? false);
       if (data.is_installment && data.installment_total) {
         setIsInstallment(true);
         setInstallments(data.installment_total);
@@ -118,6 +122,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
         setOriginalInstallments(0);
       }
     })();
+    return () => { ignore = true; };
   }, [open, isEdit, transactionId]);
 
 
