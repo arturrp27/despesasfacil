@@ -12,7 +12,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { addMonths, parseAmount, toISO } from "@/lib/format";
-import { Loader2 } from "lucide-react";
+import { AlertTriangle, Loader2 } from "lucide-react";
 
 type Props = {
   open: boolean;
@@ -51,6 +51,9 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
   const [groupInfo, setGroupInfo] = useState<{ installment_group_id: string | null; recurring_rule_id: string | null; due_date: string } | null>(null);
   const [editScope, setEditScope] = useState<EditScope>("one");
   const [originalInstallments, setOriginalInstallments] = useState<number>(0);
+  const [loadedIsRecurring, setLoadedIsRecurring] = useState(false);
+  const [loadedIsInstallment, setLoadedIsInstallment] = useState(false);
+
 
 
   const categoriesQ = useQuery({
@@ -82,11 +85,13 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
       setIsInstallment(false); setInstallments(2);
       setIsRecurring(false); setFrequency("mensal"); setCreditCardId("");
       setGroupInfo(null); setEditScope("one");
+      setLoadedIsRecurring(false); setLoadedIsInstallment(false);
       return;
     }
+    let ignore = false;
     (async () => {
       const { data } = await supabase.from("transactions").select("*").eq("id", transactionId!).maybeSingle();
-      if (!data) return;
+      if (!data || ignore) return;
       setType(data.type);
       // Strip "(i/n)" suffix from installment description for editing
       const baseDesc = data.is_installment
@@ -106,6 +111,8 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
         due_date: data.due_date,
       });
       setEditScope("one");
+      setLoadedIsRecurring(data.is_recurring ?? false);
+      setLoadedIsInstallment(data.is_installment ?? false);
       if (data.is_installment && data.installment_total) {
         setIsInstallment(true);
         setInstallments(data.installment_total);
@@ -115,6 +122,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
         setOriginalInstallments(0);
       }
     })();
+    return () => { ignore = true; };
   }, [open, isEdit, transactionId]);
 
 
@@ -403,6 +411,28 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
             </RadioGroup>
           </div>
 
+          {isEdit && (
+            groupInfo?.installment_group_id ||
+            groupInfo?.recurring_rule_id ||
+            loadedIsRecurring ||
+            loadedIsInstallment
+          ) && (
+            <div className="rounded-lg border border-pending p-3 space-y-2 bg-pending/20">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-pending" />
+                <Label className="text-foreground">Aplicar alterações a</Label>
+              </div>
+              <RadioGroup value={editScope} onValueChange={(v) => setEditScope(v as EditScope)} className="flex flex-col gap-2">
+                <label className="flex items-center gap-2 cursor-pointer text-sm">
+                  <RadioGroupItem value="one" /> Somente esta transação
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer text-sm">
+                  <RadioGroupItem value="future" /> Esta e todas as futuras
+                </label>
+              </RadioGroup>
+            </div>
+          )}
+
           {status === "pago" && (
             <div className="space-y-2">
               <Label>Data do pagamento</Label>
@@ -478,19 +508,6 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
             </>
           )}
 
-          {isEdit && (groupInfo?.installment_group_id || groupInfo?.recurring_rule_id) && (
-            <div className="rounded-lg border p-3 space-y-2 bg-muted/30">
-              <Label>Aplicar alterações a</Label>
-              <RadioGroup value={editScope} onValueChange={(v) => setEditScope(v as EditScope)} className="flex flex-col gap-2">
-                <label className="flex items-center gap-2 cursor-pointer text-sm">
-                  <RadioGroupItem value="one" /> Somente esta transação
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer text-sm">
-                  <RadioGroupItem value="future" /> Esta e todas as futuras
-                </label>
-              </RadioGroup>
-            </div>
-          )}
 
 
           <div className="space-y-2">
