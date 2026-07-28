@@ -51,6 +51,9 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
   const [groupInfo, setGroupInfo] = useState<{ installment_group_id: string | null; recurring_rule_id: string | null; due_date: string } | null>(null);
   const [editScope, setEditScope] = useState<EditScope>("one");
   const [originalInstallments, setOriginalInstallments] = useState<number>(0);
+  const [loadedIsRecurring, setLoadedIsRecurring] = useState(false);
+  const [loadedIsInstallment, setLoadedIsInstallment] = useState(false);
+
 
 
   const categoriesQ = useQuery({
