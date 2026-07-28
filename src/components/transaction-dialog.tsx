@@ -411,6 +411,28 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
             </RadioGroup>
           </div>
 
+          {isEdit && (
+            groupInfo?.installment_group_id ||
+            groupInfo?.recurring_rule_id ||
+            loadedIsRecurring ||
+            loadedIsInstallment
+          ) && (
+            <div className="rounded-lg border border-warning/50 p-3 space-y-2 bg-warning/10">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-warning" />
+                <Label className="text-warning">Aplicar alterações a</Label>
+              </div>
+              <RadioGroup value={editScope} onValueChange={(v) => setEditScope(v as EditScope)} className="flex flex-col gap-2">
+                <label className="flex items-center gap-2 cursor-pointer text-sm">
+                  <RadioGroupItem value="one" /> Somente esta transação
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer text-sm">
+                  <RadioGroupItem value="future" /> Esta e todas as futuras
+                </label>
+              </RadioGroup>
+            </div>
+          )}
+
           {status === "pago" && (
             <div className="space-y-2">
               <Label>Data do pagamento</Label>
