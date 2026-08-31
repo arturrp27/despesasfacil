@@ -20,6 +20,7 @@ type PeriodMode = "month" | "year";
 
 function ReportsPage() {
   const now = new Date();
+  const { hidden: privacyHidden } = usePrivacy();
   const [mode, setMode] = useState<PeriodMode>("month");
   const [year, setYear] = useState(now.getFullYear());
   const [monthFrom, setMonthFrom] = useState(now.getMonth());
