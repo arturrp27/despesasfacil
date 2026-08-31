@@ -4,7 +4,7 @@ export const BRL = new Intl.NumberFormat("pt-BR", {
 });
 
 export const formatBRL = (n: number | null | undefined) =>
-  BRL.format(Number(n ?? 0));
+  isPrivacyHidden() ? "R$ ••••••" : BRL.format(Number(n ?? 0));
 
 export const formatDateBR = (iso: string | null | undefined) => {
   if (!iso) return "-";
