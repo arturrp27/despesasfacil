@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { formatBRL } from "@/lib/format";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
+import { usePrivacy } from "@/hooks/use-privacy";
 
 export const Route = createFileRoute("/_app/reports")({
   head: () => ({ meta: [{ title: "Relatórios — Controle Financeiro" }] }),
@@ -167,7 +168,7 @@ function ReportsPage() {
           <ResponsiveContainer>
             <BarChart data={monthly}>
               <XAxis dataKey="month" fontSize={11} />
-              <YAxis fontSize={11} tickFormatter={(v) => `R$${v}`} />
+              <YAxis fontSize={11} tickFormatter={(v) => (privacyHidden ? "•••" : `R$${v}`)} />
               <Tooltip formatter={(v: number) => formatBRL(v)} />
               <Legend />
               <Bar dataKey="receitas" fill="oklch(0.62 0.16 150)" name="Receitas" radius={[4, 4, 0, 0]} />
