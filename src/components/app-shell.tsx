@@ -1,5 +1,6 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, ArrowLeftRight, Tags, CreditCard, BarChart3, LogOut, Wallet, Plus, Menu, PanelLeftClose, PanelLeftOpen, Users, Moon, Sun, Settings } from "lucide-react";
+import { LayoutDashboard, ArrowLeftRight, Tags, CreditCard, BarChart3, LogOut, Wallet, Plus, Menu, PanelLeftClose, PanelLeftOpen, Users, Moon, Sun, Settings, Eye, EyeOff } from "lucide-react";
+import { usePrivacy } from "@/hooks/use-privacy";
 import { type ReactNode, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -70,6 +71,15 @@ function SidebarContent({ onLogout, onNavigate }: { onLogout: () => void; onNavi
   );
 }
 
+function PrivacyToggle() {
+  const { hidden, toggle } = usePrivacy();
+  return (
+    <Button variant="ghost" size="icon" onClick={toggle} title={hidden ? "Mostrar valores" : "Ocultar valores"}>
+      {hidden ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+    </Button>
+  );
+}
+
 function ThemeToggle() {
   const { theme, toggle } = useTheme();
   return (
@@ -85,6 +95,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [txOpen, setTxOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { hidden: privacyHidden } = usePrivacy();
 
   const logout = async () => {
     await supabase.auth.signOut();
@@ -127,6 +138,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
           <div className="flex items-center gap-2">
             <NotificationBell />
+            <PrivacyToggle />
             <ThemeToggle />
             <Button onClick={() => setTxOpen(true)} className="rounded-full" size="sm">
               <Plus className="h-4 w-4 mr-1" /> Nova
@@ -135,7 +147,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </header>
 
 
-        <main className="flex-1 p-4 md:p-8">{children}</main>
+        <main key={privacyHidden ? "hidden" : "shown"} className="flex-1 p-4 md:p-8">{children}</main>
 
 
 

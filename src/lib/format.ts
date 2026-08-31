@@ -1,10 +1,12 @@
+import { isPrivacyHidden } from "@/hooks/use-privacy";
+
 export const BRL = new Intl.NumberFormat("pt-BR", {
   style: "currency",
   currency: "BRL",
 });
 
 export const formatBRL = (n: number | null | undefined) =>
-  BRL.format(Number(n ?? 0));
+  isPrivacyHidden() ? "R$ ••••••" : BRL.format(Number(n ?? 0));
 
 export const formatDateBR = (iso: string | null | undefined) => {
   if (!iso) return "-";
