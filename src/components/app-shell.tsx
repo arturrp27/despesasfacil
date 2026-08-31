@@ -71,6 +71,15 @@ function SidebarContent({ onLogout, onNavigate }: { onLogout: () => void; onNavi
   );
 }
 
+function PrivacyToggle() {
+  const { hidden, toggle } = usePrivacy();
+  return (
+    <Button variant="ghost" size="icon" onClick={toggle} title={hidden ? "Mostrar valores" : "Ocultar valores"}>
+      {hidden ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+    </Button>
+  );
+}
+
 function ThemeToggle() {
   const { theme, toggle } = useTheme();
   return (
