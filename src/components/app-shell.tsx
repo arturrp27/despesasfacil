@@ -95,6 +95,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [txOpen, setTxOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { hidden: privacyHidden } = usePrivacy();
 
   const logout = async () => {
     await supabase.auth.signOut();
@@ -137,6 +138,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
           <div className="flex items-center gap-2">
             <NotificationBell />
+            <PrivacyToggle />
             <ThemeToggle />
             <Button onClick={() => setTxOpen(true)} className="rounded-full" size="sm">
               <Plus className="h-4 w-4 mr-1" /> Nova
@@ -145,7 +147,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </header>
 
 
-        <main className="flex-1 p-4 md:p-8">{children}</main>
+        <main key={privacyHidden ? "hidden" : "shown"} className="flex-1 p-4 md:p-8">{children}</main>
 
 
 
