@@ -138,175 +138,80 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
 
     setBusy(true);
     try {
-      const { data: u } = await supabase.auth.getUser();
-      const user_id = u.user!.id;
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !sessionData.session) {
+        toast.error("Sua sessão expirou. Entre novamente para continuar.");
+        return;
+      }
 
       if (isEdit) {
         const igId = groupInfo?.installment_group_id ?? null;
-        const rrId = groupInfo?.recurring_rule_id ?? null;
-        const groupId = igId ?? rrId;
 
-        // Reshape do grupo de parcelas (mudou a quantidade)
+        // Redimensionamento do parcelamento (mudou a quantidade) — atômico no banco
         if (igId && isInstallment && installments !== originalInstallments) {
-          const newN = Math.max(1, Math.min(120, installments));
-          const per = valueNum;
-          const total = Math.round(per * newN * 100) / 100;
-
-          // Busca data da primeira parcela
-          const { data: grp } = await supabase.from("installment_groups")
-            .select("first_due_date").eq("id", igId).maybeSingle();
-          const firstDate = grp?.first_due_date ?? dueDate;
-
-          // Atualiza todas as parcelas existentes (até newN)
-          const { data: existing } = await supabase.from("transactions")
-            .select("id, installment_number")
-            .eq("installment_group_id", igId)
-            .order("installment_number", { ascending: true });
-
-          for (const row of existing ?? []) {
-            if ((row.installment_number ?? 0) > newN) continue;
-            await supabase.from("transactions").update({
-              description: `${description} (${row.installment_number}/${newN})`,
-              amount: per,
-              category_id: categoryId || null,
-              payment_method: paymentMethod as never,
-              notes: notes || null,
-              credit_card_id: creditCardId || null,
-              installment_total: newN,
-            }).eq("id", row.id);
-          }
-
-          // Excluir parcelas excedentes
-          if (newN < originalInstallments) {
-            await supabase.from("transactions").delete()
-              .eq("installment_group_id", igId)
-              .gt("installment_number", newN);
-          }
-
-          // Criar novas parcelas
-          if (newN > originalInstallments) {
-            const rows = [];
-            for (let i = originalInstallments + 1; i <= newN; i++) {
-              const d = addMonths(new Date(firstDate), i - 1);
-              rows.push({
-                user_id, type: "despesa" as const,
-                description: `${description} (${i}/${newN})`,
-                amount: per, due_date: toISO(d),
-                category_id: categoryId || null,
-                status: "pendente" as const,
-                payment_method: paymentMethod as never,
-                notes: notes || null,
-                is_installment: true, installment_group_id: igId,
-                installment_number: i, installment_total: newN,
-                credit_card_id: creditCardId || null,
-              });
-            }
-            if (rows.length) {
-              const { error: insErr } = await supabase.from("transactions").insert(rows);
-              if (insErr) throw insErr;
-            }
-          }
-
-          await supabase.from("installment_groups").update({
-            description, total_amount: total, installments_count: newN,
-            category_id: categoryId || null,
-            payment_method: paymentMethod as never,
-            credit_card_id: creditCardId || null,
-          }).eq("id", igId);
-
+          const newN = Math.max(2, Math.min(120, installments));
+          const { error } = await supabase.rpc("resize_installment_plan", {
+            p_group_id: igId,
+            p_description: description.trim(),
+            p_amount: valueNum,
+            p_installments: newN,
+            p_category_id: categoryId || null,
+            p_payment_method: (paymentMethod || null) as never,
+            p_credit_card_id: creditCardId || null,
+            p_notes: notes || null,
+          });
+          if (error) throw error;
           toast.success(`Parcelamento atualizado para ${newN} parcelas.`);
         } else {
-          const patch = {
-            type, description, amount: valueNum, due_date: dueDate,
-            category_id: categoryId || null, status, payment_method: paymentMethod as never,
-            notes: notes || null, credit_card_id: creditCardId || null,
-            payment_date: status === "pago" ? (paymentDate || toISO(new Date())) : null,
-          };
-          if (groupId && editScope === "future") {
-            const col = igId ? "installment_group_id" : "recurring_rule_id";
-            const { due_date: _omit, ...futurePatch } = patch;
-            const { error } = await supabase.from("transactions")
-              .update(futurePatch).eq(col, groupId)
-              .gte("due_date", groupInfo!.due_date);
-            if (error) throw error;
-            toast.success("Esta e as transações futuras atualizadas.");
-          } else {
-            const { error } = await supabase.from("transactions").update(patch).eq("id", transactionId!);
-            if (error) throw error;
-            toast.success("Transação atualizada.");
-          }
+          const { error } = await supabase.rpc("update_transaction_scope", {
+            p_transaction_id: transactionId!,
+            p_scope: editScope,
+            p_type: type as never,
+            p_description: description.trim(),
+            p_amount: valueNum,
+            p_due_date: dueDate,
+            p_status: status as never,
+            p_category_id: categoryId || null,
+            p_payment_method: (paymentMethod || null) as never,
+            p_notes: notes || null,
+            p_credit_card_id: creditCardId || null,
+            p_payment_date: status === "pago" ? (paymentDate || toISO(new Date())) : null,
+          });
+          if (error) throw error;
+          toast.success(editScope === "future" ? "Esta e as transações futuras atualizadas." : "Transação atualizada.");
         }
       } else if (isRecurring && type === "despesa") {
-
-
-        const { data: rule, error: ruleErr } = await supabase.from("recurring_rules").insert({
-          user_id, description, amount: valueNum, frequency,
-          day_of_month: Number(dueDate.slice(8, 10)),
-          start_date: dueDate, category_id: categoryId || null,
-          payment_method: paymentMethod as never,
-        }).select().single();
-        if (ruleErr) throw ruleErr;
-
-        const rows = [];
-        for (let i = 0; i < 12; i++) {
-          const d = frequency === "mensal" ? addMonths(new Date(dueDate), i)
-            : frequency === "anual" ? addMonths(new Date(dueDate), i * 12)
-            : new Date(new Date(dueDate).getTime() + i * 7 * 86400000);
-          rows.push({
-            user_id, type, description, amount: valueNum, due_date: toISO(d),
-            category_id: categoryId || null, status: "pendente" as const,
-            payment_method: paymentMethod as never, notes: notes || null,
-            is_recurring: true, recurring_rule_id: rule.id,
-          });
-        }
-        const { error: txErr } = await supabase.from("transactions").insert(rows);
-        if (txErr) throw txErr;
-        await supabase.from("notifications").insert({
-          user_id, kind: "new_transaction",
-          title: "Recorrência criada",
-          body: `${description} • 12 lançamentos gerados`,
-          dedupe_key: `rec:${rule.id}`,
+        const { error } = await supabase.rpc("create_recurring_expense", {
+          p_description: description.trim(),
+          p_amount: valueNum,
+          p_frequency: frequency as never,
+          p_start_date: dueDate,
+          p_category_id: categoryId || null,
+          p_payment_method: (paymentMethod || null) as never,
+          p_notes: notes || null,
+          p_occurrences: 12,
         });
+        if (error) throw error;
         toast.success("Despesa recorrente criada (12 lançamentos).");
       } else if (isInstallment && type === "despesa") {
         const n = Math.max(2, Math.min(120, installments));
-        const per = valueNum; // valor é por parcela
-        const total = Math.round(per * n * 100) / 100;
-        const { data: grp, error: grpErr } = await supabase.from("installment_groups").insert({
-          user_id, description, total_amount: total, installments_count: n,
-          first_due_date: dueDate, category_id: categoryId || null,
-          payment_method: paymentMethod as never,
-          credit_card_id: creditCardId || null,
-        }).select().single();
-        if (grpErr) throw grpErr;
-
-        const rows = [];
-        for (let i = 0; i < n; i++) {
-          const d = addMonths(new Date(dueDate), i);
-          rows.push({
-            user_id, type: "despesa" as const,
-            description: `${description} (${i + 1}/${n})`,
-            amount: per, due_date: toISO(d), category_id: categoryId || null,
-            status: "pendente" as const, payment_method: paymentMethod as never,
-            notes: notes || null,
-            is_installment: true, installment_group_id: grp.id,
-            installment_number: i + 1, installment_total: n,
-            credit_card_id: creditCardId || null,
-          });
-        }
-        const { error: txErr } = await supabase.from("transactions").insert(rows);
-        if (txErr) throw txErr;
-        await supabase.from("notifications").insert({
-          user_id, kind: "new_transaction",
-          title: "Parcelamento criado",
-          body: `${description} • ${n}x de R$ ${per.toLocaleString("pt-BR",{minimumFractionDigits:2})}`,
-          dedupe_key: `inst:${grp.id}`,
+        const total = Math.round(valueNum * n * 100) / 100;
+        const { error } = await supabase.rpc("create_installment_plan", {
+          p_description: description.trim(),
+          p_amount: valueNum,
+          p_installments: n,
+          p_first_due_date: dueDate,
+          p_category_id: categoryId || null,
+          p_payment_method: (paymentMethod || null) as never,
+          p_credit_card_id: creditCardId || null,
+          p_notes: notes || null,
         });
-        toast.success(`${n} parcelas criadas (total ${total.toLocaleString("pt-BR",{minimumFractionDigits:2})}).`);
-
+        if (error) throw error;
+        toast.success(`${n} parcelas criadas (total ${total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}).`);
       } else {
         const { error } = await supabase.from("transactions").insert({
-          user_id, type, description, amount: valueNum, due_date: dueDate,
+          user_id: sessionData.session.user.id,
+          type, description: description.trim(), amount: valueNum, due_date: dueDate,
           category_id: categoryId || null, status, payment_method: paymentMethod as never,
           notes: notes || null, credit_card_id: creditCardId || null,
           payment_date: status === "pago" ? (paymentDate || toISO(new Date())) : null,
@@ -318,7 +223,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
       qc.invalidateQueries();
       onOpenChange(false);
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Erro ao salvar.");
+      toast.error(friendlyError(e, "Não foi possível salvar a transação."));
     } finally {
       setBusy(false);
     }
