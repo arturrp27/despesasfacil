@@ -444,6 +444,36 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_installment_plan: {
+        Args: {
+          p_amount: number
+          p_category_id?: string
+          p_credit_card_id?: string
+          p_description: string
+          p_first_due_date: string
+          p_installments: number
+          p_notes?: string
+          p_payment_method?: Database["public"]["Enums"]["payment_method"]
+        }
+        Returns: string
+      }
+      create_recurring_expense: {
+        Args: {
+          p_amount: number
+          p_category_id?: string
+          p_description: string
+          p_frequency: Database["public"]["Enums"]["recurrence_frequency"]
+          p_notes?: string
+          p_occurrences?: number
+          p_payment_method?: Database["public"]["Enums"]["payment_method"]
+          p_start_date: string
+        }
+        Returns: string
+      }
+      delete_transaction_scope: {
+        Args: { p_scope: string; p_transaction_id: string }
+        Returns: number
+      }
       generate_due_notifications: { Args: never; Returns: number }
       has_role: {
         Args: {
@@ -451,6 +481,36 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      resize_installment_plan: {
+        Args: {
+          p_amount: number
+          p_category_id?: string
+          p_credit_card_id?: string
+          p_description: string
+          p_group_id: string
+          p_installments: number
+          p_notes?: string
+          p_payment_method?: Database["public"]["Enums"]["payment_method"]
+        }
+        Returns: number
+      }
+      update_transaction_scope: {
+        Args: {
+          p_amount: number
+          p_category_id?: string
+          p_credit_card_id?: string
+          p_description: string
+          p_due_date: string
+          p_notes?: string
+          p_payment_date?: string
+          p_payment_method?: Database["public"]["Enums"]["payment_method"]
+          p_scope: string
+          p_status: Database["public"]["Enums"]["transaction_status"]
+          p_transaction_id: string
+          p_type: Database["public"]["Enums"]["transaction_type"]
+        }
+        Returns: number
       }
     }
     Enums: {
