@@ -11,7 +11,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { addMonths, parseAmount, toISO } from "@/lib/format";
+import { parseAmount, toISO } from "@/lib/format";
+import { friendlyError } from "@/lib/errors";
 import { AlertTriangle, Loader2 } from "lucide-react";
 
 type Props = {
@@ -155,10 +156,10 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
             p_description: description.trim(),
             p_amount: valueNum,
             p_installments: newN,
-            p_category_id: categoryId || null,
+            p_category_id: categoryId || undefined,
             p_payment_method: (paymentMethod || null) as never,
-            p_credit_card_id: creditCardId || null,
-            p_notes: notes || null,
+            p_credit_card_id: creditCardId || undefined,
+            p_notes: notes || undefined,
           });
           if (error) throw error;
           toast.success(`Parcelamento atualizado para ${newN} parcelas.`);
@@ -171,11 +172,11 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
             p_amount: valueNum,
             p_due_date: dueDate,
             p_status: status as never,
-            p_category_id: categoryId || null,
+            p_category_id: categoryId || undefined,
             p_payment_method: (paymentMethod || null) as never,
-            p_notes: notes || null,
-            p_credit_card_id: creditCardId || null,
-            p_payment_date: status === "pago" ? (paymentDate || toISO(new Date())) : null,
+            p_notes: notes || undefined,
+            p_credit_card_id: creditCardId || undefined,
+            p_payment_date: status === "pago" ? (paymentDate || toISO(new Date())) : undefined,
           });
           if (error) throw error;
           toast.success(editScope === "future" ? "Esta e as transações futuras atualizadas." : "Transação atualizada.");
@@ -186,9 +187,9 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
           p_amount: valueNum,
           p_frequency: frequency as never,
           p_start_date: dueDate,
-          p_category_id: categoryId || null,
+          p_category_id: categoryId || undefined,
           p_payment_method: (paymentMethod || null) as never,
-          p_notes: notes || null,
+          p_notes: notes || undefined,
           p_occurrences: 12,
         });
         if (error) throw error;
@@ -201,10 +202,10 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
           p_amount: valueNum,
           p_installments: n,
           p_first_due_date: dueDate,
-          p_category_id: categoryId || null,
+          p_category_id: categoryId || undefined,
           p_payment_method: (paymentMethod || null) as never,
-          p_credit_card_id: creditCardId || null,
-          p_notes: notes || null,
+          p_credit_card_id: creditCardId || undefined,
+          p_notes: notes || undefined,
         });
         if (error) throw error;
         toast.success(`${n} parcelas criadas (total ${total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}).`);
@@ -212,7 +213,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
         const { error } = await supabase.from("transactions").insert({
           user_id: sessionData.session.user.id,
           type, description: description.trim(), amount: valueNum, due_date: dueDate,
-          category_id: categoryId || null, status, payment_method: paymentMethod as never,
+          category_id: categoryId || undefined, status, payment_method: paymentMethod as never,
           notes: notes || null, credit_card_id: creditCardId || null,
           payment_date: status === "pago" ? (paymentDate || toISO(new Date())) : null,
         });
