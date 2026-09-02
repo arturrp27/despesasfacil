@@ -37,6 +37,8 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [dueDate, setDueDate] = useState(toISO(new Date()));
+  const [competenceMonth, setCompetenceMonth] = useState(toISO(new Date()).slice(0, 7));
+  const [competenceTouched, setCompetenceTouched] = useState(false);
   const [categoryId, setCategoryId] = useState<string>("");
   const [status, setStatus] = useState<"pendente" | "pago">("pendente");
   const [paymentDate, setPaymentDate] = useState<string>(toISO(new Date()));
@@ -88,6 +90,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
       setCategoryId(""); setStatus("pendente"); setPaymentDate(toISO(new Date())); setPaymentMethod("pix"); setNotes("");
       setIsInstallment(false); setInstallments(2);
       setIsRecurring(false); setFrequency("mensal"); setCreditCardId("");
+      setCompetenceMonth(toISO(new Date()).slice(0, 7)); setCompetenceTouched(false);
       setGroupInfo(null); setEditScope("one");
       setLoadedIsRecurring(false); setLoadedIsInstallment(false);
       return;
@@ -104,6 +107,8 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
       setDescription(baseDesc);
       setAmount(String(data.amount).replace(".", ","));
       setDueDate(data.due_date);
+      setCompetenceMonth((data.competence_month ?? data.due_date).slice(0, 7));
+      setCompetenceTouched(true);
       setCategoryId(data.category_id ?? "");
       setStatus(data.status); setPaymentMethod(data.payment_method ?? "pix");
       setPaymentDate(data.payment_date ?? toISO(new Date()));
@@ -180,6 +185,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
             p_notes: notes || undefined,
             p_credit_card_id: creditCardId || undefined,
             p_payment_date: status === "pago" ? (paymentDate || toISO(new Date())) : undefined,
+            p_competence_month: type === "receita" ? `${competenceMonth}-01` : undefined,
           });
           if (error) throw error;
           toast.success(editScope === "future" ? "Esta e as transações futuras atualizadas." : "Transação atualizada.");
@@ -219,6 +225,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
           category_id: categoryId || undefined, status, payment_method: paymentMethod,
           notes: notes || null, credit_card_id: creditCardId || null,
           payment_date: status === "pago" ? (paymentDate || toISO(new Date())) : null,
+          competence_month: `${type === "receita" ? competenceMonth : dueDate.slice(0, 7)}-01`,
         });
         if (error) throw error;
         toast.success("Transação criada.");
@@ -261,10 +268,29 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
             </div>
 
             <div className="space-y-2">
-              <Label>Vencimento *</Label>
-              <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+              <Label>{type === "receita" ? "Data do recebimento *" : "Vencimento *"}</Label>
+              <Input
+                type="date"
+                value={dueDate}
+                onChange={(e) => {
+                  setDueDate(e.target.value);
+                  if (!competenceTouched && e.target.value) setCompetenceMonth(e.target.value.slice(0, 7));
+                }}
+              />
             </div>
           </div>
+
+          {type === "receita" && (
+            <div className="space-y-2">
+              <Label>Mês de referência</Label>
+              <Input
+                type="month"
+                value={competenceMonth}
+                onChange={(e) => { setCompetenceMonth(e.target.value); setCompetenceTouched(true); }}
+              />
+              <p className="text-xs text-muted-foreground">Mês do orçamento a que esta receita pertence (ex.: vale recebido em 20/08 com referência setembro).</p>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">

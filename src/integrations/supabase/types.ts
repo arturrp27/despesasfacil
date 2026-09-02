@@ -47,44 +47,6 @@ export type Database = {
         }
         Relationships: []
       }
-      credit_card_invoices: {
-        Row: {
-          created_at: string
-          credit_card_id: string
-          id: string
-          invoice_month: string
-          status: Database["public"]["Enums"]["invoice_status"]
-          total_amount: number
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          credit_card_id: string
-          id?: string
-          invoice_month: string
-          status?: Database["public"]["Enums"]["invoice_status"]
-          total_amount?: number
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          credit_card_id?: string
-          id?: string
-          invoice_month?: string
-          status?: Database["public"]["Enums"]["invoice_status"]
-          total_amount?: number
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "credit_card_invoices_credit_card_id_fkey"
-            columns: ["credit_card_id"]
-            isOneToOne: false
-            referencedRelation: "credit_cards"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       credit_cards: {
         Row: {
           active: boolean
@@ -294,6 +256,7 @@ export type Database = {
         Row: {
           amount: number
           category_id: string | null
+          competence_month: string
           created_at: string
           credit_card_id: string | null
           description: string
@@ -302,7 +265,6 @@ export type Database = {
           installment_group_id: string | null
           installment_number: number | null
           installment_total: number | null
-          invoice_month: string | null
           is_installment: boolean
           is_recurring: boolean
           notes: string | null
@@ -317,6 +279,7 @@ export type Database = {
         Insert: {
           amount: number
           category_id?: string | null
+          competence_month: string
           created_at?: string
           credit_card_id?: string | null
           description: string
@@ -325,7 +288,6 @@ export type Database = {
           installment_group_id?: string | null
           installment_number?: number | null
           installment_total?: number | null
-          invoice_month?: string | null
           is_installment?: boolean
           is_recurring?: boolean
           notes?: string | null
@@ -340,6 +302,7 @@ export type Database = {
         Update: {
           amount?: number
           category_id?: string | null
+          competence_month?: string
           created_at?: string
           credit_card_id?: string | null
           description?: string
@@ -348,7 +311,6 @@ export type Database = {
           installment_group_id?: string | null
           installment_number?: number | null
           installment_total?: number | null
-          invoice_month?: string | null
           is_installment?: boolean
           is_recurring?: boolean
           notes?: string | null
@@ -499,6 +461,7 @@ export type Database = {
         Args: {
           p_amount: number
           p_category_id?: string
+          p_competence_month?: string
           p_credit_card_id?: string
           p_description: string
           p_due_date: string
@@ -516,7 +479,6 @@ export type Database = {
     Enums: {
       app_role: "admin" | "user"
       category_kind: "receita" | "despesa" | "ambos"
-      invoice_status: "aberta" | "fechada" | "paga"
       payment_method:
         | "pix"
         | "dinheiro"
@@ -657,7 +619,6 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "user"],
       category_kind: ["receita", "despesa", "ambos"],
-      invoice_status: ["aberta", "fechada", "paga"],
       payment_method: [
         "pix",
         "dinheiro",
