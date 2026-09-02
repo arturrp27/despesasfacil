@@ -242,7 +242,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
         </DialogHeader>
 
         <form onSubmit={onSubmit} className="space-y-4">
-          <Tabs value={type} onValueChange={(v) => setType(v as never)}>
+          <Tabs value={type} onValueChange={(v) => setType(v as "despesa" | "receita")}>
             <TabsList className="grid grid-cols-2 w-full">
               <TabsTrigger value="despesa" className="data-[state=active]:text-expense">Despesa</TabsTrigger>
               <TabsTrigger value="receita" className="data-[state=active]:text-income">Receita</TabsTrigger>
@@ -280,7 +280,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
             </div>
             <div className="space-y-2">
               <Label>Forma de pagamento</Label>
-              <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+              <Select value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as PaymentMethod)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="pix">Pix</SelectItem>
@@ -310,7 +310,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
 
           <div className="space-y-2">
             <Label>Status</Label>
-            <RadioGroup value={status} onValueChange={(v) => setStatus(v as never)} className="flex gap-4">
+            <RadioGroup value={status} onValueChange={(v) => setStatus(v as "pendente" | "pago")} className="flex gap-4">
               <label className="flex items-center gap-2 cursor-pointer">
                 <RadioGroupItem value="pendente" /> Pendente
               </label>
@@ -402,7 +402,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
                 {isRecurring && (
                   <div className="space-y-2">
                     <Label>Frequência</Label>
-                    <Select value={frequency} onValueChange={(v) => setFrequency(v as never)}>
+                    <Select value={frequency} onValueChange={(v) => setFrequency(v as "mensal" | "semanal" | "anual")}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="mensal">Mensal</SelectItem>
