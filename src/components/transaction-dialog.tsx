@@ -14,6 +14,9 @@ import { toast } from "sonner";
 import { parseAmount, toISO } from "@/lib/format";
 import { friendlyError } from "@/lib/errors";
 import { AlertTriangle, Loader2 } from "lucide-react";
+import type { Database } from "@/integrations/supabase/types";
+
+type PaymentMethod = Database["public"]["Enums"]["payment_method"];
 
 type Props = {
   open: boolean;
@@ -37,7 +40,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
   const [categoryId, setCategoryId] = useState<string>("");
   const [status, setStatus] = useState<"pendente" | "pago">("pendente");
   const [paymentDate, setPaymentDate] = useState<string>(toISO(new Date()));
-  const [paymentMethod, setPaymentMethod] = useState<string>("pix");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("pix");
   const [notes, setNotes] = useState("");
 
   const [isInstallment, setIsInstallment] = useState(false);
@@ -157,7 +160,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
             p_amount: valueNum,
             p_installments: newN,
             p_category_id: categoryId || undefined,
-            p_payment_method: (paymentMethod || null) as never,
+            p_payment_method: paymentMethod,
             p_credit_card_id: creditCardId || undefined,
             p_notes: notes || undefined,
           });
@@ -167,13 +170,13 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
           const { error } = await supabase.rpc("update_transaction_scope", {
             p_transaction_id: transactionId!,
             p_scope: editScope,
-            p_type: type as never,
+            p_type: type,
             p_description: description.trim(),
             p_amount: valueNum,
             p_due_date: dueDate,
-            p_status: status as never,
+            p_status: status,
             p_category_id: categoryId || undefined,
-            p_payment_method: (paymentMethod || null) as never,
+            p_payment_method: paymentMethod,
             p_notes: notes || undefined,
             p_credit_card_id: creditCardId || undefined,
             p_payment_date: status === "pago" ? (paymentDate || toISO(new Date())) : undefined,
@@ -185,10 +188,10 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
         const { error } = await supabase.rpc("create_recurring_expense", {
           p_description: description.trim(),
           p_amount: valueNum,
-          p_frequency: frequency as never,
+          p_frequency: frequency,
           p_start_date: dueDate,
           p_category_id: categoryId || undefined,
-          p_payment_method: (paymentMethod || null) as never,
+          p_payment_method: paymentMethod,
           p_notes: notes || undefined,
           p_occurrences: 12,
         });
@@ -203,7 +206,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
           p_installments: n,
           p_first_due_date: dueDate,
           p_category_id: categoryId || undefined,
-          p_payment_method: (paymentMethod || null) as never,
+          p_payment_method: paymentMethod,
           p_credit_card_id: creditCardId || undefined,
           p_notes: notes || undefined,
         });
@@ -213,7 +216,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
         const { error } = await supabase.from("transactions").insert({
           user_id: sessionData.session.user.id,
           type, description: description.trim(), amount: valueNum, due_date: dueDate,
-          category_id: categoryId || undefined, status, payment_method: paymentMethod as never,
+          category_id: categoryId || undefined, status, payment_method: paymentMethod,
           notes: notes || null, credit_card_id: creditCardId || null,
           payment_date: status === "pago" ? (paymentDate || toISO(new Date())) : null,
         });
@@ -239,7 +242,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
         </DialogHeader>
 
         <form onSubmit={onSubmit} className="space-y-4">
-          <Tabs value={type} onValueChange={(v) => setType(v as never)}>
+          <Tabs value={type} onValueChange={(v) => setType(v as "despesa" | "receita")}>
             <TabsList className="grid grid-cols-2 w-full">
               <TabsTrigger value="despesa" className="data-[state=active]:text-expense">Despesa</TabsTrigger>
               <TabsTrigger value="receita" className="data-[state=active]:text-income">Receita</TabsTrigger>
@@ -277,7 +280,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
             </div>
             <div className="space-y-2">
               <Label>Forma de pagamento</Label>
-              <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+              <Select value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as PaymentMethod)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="pix">Pix</SelectItem>
@@ -307,7 +310,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
 
           <div className="space-y-2">
             <Label>Status</Label>
-            <RadioGroup value={status} onValueChange={(v) => setStatus(v as never)} className="flex gap-4">
+            <RadioGroup value={status} onValueChange={(v) => setStatus(v as "pendente" | "pago")} className="flex gap-4">
               <label className="flex items-center gap-2 cursor-pointer">
                 <RadioGroupItem value="pendente" /> Pendente
               </label>
@@ -399,7 +402,7 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
                 {isRecurring && (
                   <div className="space-y-2">
                     <Label>Frequência</Label>
-                    <Select value={frequency} onValueChange={(v) => setFrequency(v as never)}>
+                    <Select value={frequency} onValueChange={(v) => setFrequency(v as "mensal" | "semanal" | "anual")}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="mensal">Mensal</SelectItem>
