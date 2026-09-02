@@ -76,28 +76,53 @@ function TransactionsPage() {
     return { total, pago, devedor: total - pago };
   }, [txQ.data]);
 
+  const ensureSession = async () => {
+    const { data, error } = await supabase.auth.getSession();
+    if (error || !data.session) {
+      toast.error("Sua sessão expirou. Entre novamente para continuar.");
+      return false;
+    }
+    return true;
+  };
+
   const markPaid = async (id: string) => {
-    const { error } = await supabase.from("transactions").update({ status: "pago", payment_date: toISO(new Date()) }).eq("id", id);
-    if (error) return toast.error(error.message);
-    toast.success("Marcada como paga.");
-    qc.invalidateQueries();
+    try {
+      if (!(await ensureSession())) return;
+      // Atualização única e atômica, coerente com tx_payment_date_coherence
+      const { data, error } = await supabase
+        .from("transactions")
+        .update({ status: "pago", payment_date: toISO(new Date()) })
+        .eq("id", id)
+        .eq("status", "pendente")
+        .select("id");
+      if (error) throw error;
+      if (!data || data.length === 0) {
+        toast.error("Nada foi atualizado.");
+        return;
+      }
+      toast.success("Marcada como paga.");
+      qc.invalidateQueries();
+    } catch (e: unknown) {
+      toast.error(friendlyError(e, "Não foi possível marcar como paga."));
+    }
   };
 
   const removeTx = async (scope: "one" | "future") => {
     if (!deleteTx) return;
-    const groupId = deleteTx.installment_group_id ?? deleteTx.recurring_rule_id;
-    let q = supabase.from("transactions").delete();
-    if (scope === "future" && groupId) {
-      const col = deleteTx.installment_group_id ? "installment_group_id" : "recurring_rule_id";
-      q = q.eq(col, groupId).gte("due_date", deleteTx.due_date);
-    } else {
-      q = q.eq("id", deleteTx.id);
-    }
-    const { error } = await q;
+    const target = deleteTx;
     setDeleteTx(null);
-    if (error) return toast.error(error.message);
-    toast.success(scope === "future" ? "Transações excluídas." : "Transação excluída.");
-    qc.invalidateQueries();
+    try {
+      if (!(await ensureSession())) return;
+      const { error } = await supabase.rpc("delete_transaction_scope", {
+        p_transaction_id: target.id,
+        p_scope: scope,
+      });
+      if (error) throw error;
+      toast.success(scope === "future" ? "Transações excluídas." : "Transação excluída.");
+      qc.invalidateQueries();
+    } catch (e: unknown) {
+      toast.error(friendlyError(e, "Não foi possível excluir a transação."));
+    }
   };
 
 
