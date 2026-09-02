@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatBRL, formatDateBR, toISO } from "@/lib/format";
+import { friendlyError } from "@/lib/errors";
 import { Check, Pencil, Trash2, Search, Layers, Repeat } from "lucide-react";
 import { TransactionDialog } from "@/components/transaction-dialog";
 import { toast } from "sonner";
