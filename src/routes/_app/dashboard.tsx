@@ -20,19 +20,16 @@ function DashboardPage() {
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth());
 
-  const start = useMemo(() => `${year}-${String(month + 1).padStart(2, "0")}-01`, [year, month]);
-  const end = useMemo(() => {
-    const d = new Date(year, month + 1, 0);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-  }, [year, month]);
+  // Mês de referência (competência) — primeiro dia do mês
+  const competence = useMemo(() => `${year}-${String(month + 1).padStart(2, "0")}-01`, [year, month]);
 
   const txQ = useQuery({
-    queryKey: ["dashboard-tx", start, end],
+    queryKey: ["dashboard-tx", "competence", competence],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("transactions")
-        .select("id,type,description,amount,due_date,payment_date,status")
-        .gte("due_date", start).lte("due_date", end)
+        .select("id,type,description,amount,due_date,competence_month,payment_date,status")
+        .eq("competence_month", competence)
         .order("due_date", { ascending: true });
       if (error) throw error;
       return data;

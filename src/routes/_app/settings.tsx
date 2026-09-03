@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Bell, BellOff } from "lucide-react";
+import { IncomeRulesCard } from "@/components/income-rules-card";
 
 export const Route = createFileRoute("/_app/settings")({
   head: () => ({ meta: [{ title: "Configurações — Controle Financeiro" }] }),
@@ -82,6 +83,8 @@ function SettingsPage() {
   return (
     <div className="space-y-4 max-w-2xl">
       <h1 className="text-2xl font-semibold">Configurações</h1>
+
+      <IncomeRulesCard />
 
       <Card>
         <CardHeader><CardTitle className="text-base">Notificações</CardTitle></CardHeader>
