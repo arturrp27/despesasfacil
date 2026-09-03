@@ -29,34 +29,34 @@ function ReportsPage() {
   const pad = (n: number) => String(n).padStart(2, "0");
   const mFrom = Math.min(monthFrom, monthTo);
   const mTo = Math.max(monthFrom, monthTo);
-  const lastDay = new Date(year, mTo + 1, 0).getDate();
+  // Intervalos por mês de referência (competência = primeiro dia do mês)
   const startMonth = `${year}-${pad(mFrom + 1)}-01`;
-  const endMonth = `${year}-${pad(mTo + 1)}-${pad(lastDay)}`;
+  const endMonth = `${year}-${pad(mTo + 1)}-01`;
 
   const yearStart = `${year}-01-01`;
-  const yearEnd = `${year}-12-31`;
+  const yearEnd = `${year}-12-01`;
 
-  const selectCols = "amount,type,status,description,due_date,categories(name,color)";
+  const selectCols = "amount,type,status,description,due_date,competence_month,categories(name,color)";
 
   const monthQ = useQuery({
-    queryKey: ["reports-month", startMonth, endMonth],
+    queryKey: ["reports-month", "competence", startMonth, endMonth],
     queryFn: async () => {
       const { data } = await supabase
         .from("transactions")
         .select(selectCols)
-        .gte("due_date", startMonth).lte("due_date", endMonth);
+        .gte("competence_month", startMonth).lte("competence_month", endMonth);
       return data ?? [];
     },
   });
 
   const yearQ = useQuery({
-    queryKey: ["reports-year", year],
+    queryKey: ["reports-year", "competence", year],
     queryFn: async () => {
       const { data } = await supabase
         .from("transactions")
         .select(selectCols)
-        .gte("due_date", yearStart)
-        .lte("due_date", yearEnd);
+        .gte("competence_month", yearStart)
+        .lte("competence_month", yearEnd);
       return data ?? [];
     },
   });
@@ -82,7 +82,7 @@ function ReportsPage() {
       receitas: 0, despesas: 0,
     }));
     for (const t of yearQ.data ?? []) {
-      const m = Number(t.due_date.slice(5, 7)) - 1;
+      const m = Number((t.competence_month ?? t.due_date).slice(5, 7)) - 1;
       if (t.type === "receita") months[m].receitas += Number(t.amount);
       else months[m].despesas += Number(t.amount);
     }

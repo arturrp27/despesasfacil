@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { formatBRL, formatDateBR, toISO } from "@/lib/format";
+import { formatBRL, formatDateBR, toISO, competenceLabel } from "@/lib/format";
 import { friendlyError } from "@/lib/errors";
 import { Check, Pencil, Trash2, Search, Layers, Repeat } from "lucide-react";
 import { TransactionDialog } from "@/components/transaction-dialog";
@@ -35,9 +35,8 @@ function TransactionsPage() {
   const [deleteTx, setDeleteTx] = useState<{ id: string; installment_group_id: string | null; recurring_rule_id: string | null; due_date: string } | null>(null);
 
 
-  const start = `${year}-${String(month + 1).padStart(2, "0")}-01`;
-  const endD = new Date(year, month + 1, 0);
-  const end = toISO(endD);
+  // Mês de referência (competência)
+  const competence = `${year}-${String(month + 1).padStart(2, "0")}-01`;
 
   const catsQ = useQuery({
     queryKey: ["categories"],
@@ -48,12 +47,12 @@ function TransactionsPage() {
   });
 
   const txQ = useQuery({
-    queryKey: ["transactions", start, end],
+    queryKey: ["transactions", "competence", competence],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("transactions")
         .select("*, categories(name,color)")
-        .gte("due_date", start).lte("due_date", end)
+        .eq("competence_month", competence)
         .order("due_date", { ascending: true });
       if (error) throw error;
       return data;
@@ -224,7 +223,12 @@ function TransactionsPage() {
                   </Badge>
                 </div>
                 <div className="text-xs text-muted-foreground mt-0.5">
-                  <div className="truncate">{t.categories?.name ?? "Sem categoria"} • Vence {formatDateBR(t.due_date)}</div>
+                  <div className="truncate">
+                    {t.categories?.name ?? "Sem categoria"} • {t.type === "receita" ? "Recebimento" : "Vence"} {formatDateBR(t.due_date)}
+                  </div>
+                  {t.type === "receita" && t.competence_month && t.competence_month.slice(0, 7) !== t.due_date.slice(0, 7) && (
+                    <div className="italic">Referência: {competenceLabel(t.competence_month)}</div>
+                  )}
                   {t.status === "pago" && t.payment_date && (
                     <div className="text-success font-medium">Pago em {formatDateBR(t.payment_date)}</div>
                   )}
