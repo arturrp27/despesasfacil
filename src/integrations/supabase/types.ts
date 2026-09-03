@@ -80,6 +80,47 @@ export type Database = {
         }
         Relationships: []
       }
+      income_rules: {
+        Row: {
+          active: boolean
+          category_id: string | null
+          created_at: string
+          default_amount: number
+          id: string
+          kind: Database["public"]["Enums"]["income_rule_kind"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          category_id?: string | null
+          created_at?: string
+          default_amount: number
+          id?: string
+          kind: Database["public"]["Enums"]["income_rule_kind"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          category_id?: string | null
+          created_at?: string
+          default_amount?: number
+          id?: string
+          kind?: Database["public"]["Enums"]["income_rule_kind"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "income_rules_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       installment_groups: {
         Row: {
           category_id: string | null
@@ -262,6 +303,7 @@ export type Database = {
           description: string
           due_date: string
           id: string
+          income_rule_id: string | null
           installment_group_id: string | null
           installment_number: number | null
           installment_total: number | null
@@ -285,6 +327,7 @@ export type Database = {
           description: string
           due_date: string
           id?: string
+          income_rule_id?: string | null
           installment_group_id?: string | null
           installment_number?: number | null
           installment_total?: number | null
@@ -308,6 +351,7 @@ export type Database = {
           description?: string
           due_date?: string
           id?: string
+          income_rule_id?: string | null
           installment_group_id?: string | null
           installment_number?: number | null
           installment_total?: number | null
@@ -335,6 +379,13 @@ export type Database = {
             columns: ["credit_card_id"]
             isOneToOne: false
             referencedRelation: "credit_cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_income_rule_id_fkey"
+            columns: ["income_rule_id"]
+            isOneToOne: false
+            referencedRelation: "income_rules"
             referencedColumns: ["id"]
           },
           {
@@ -436,6 +487,10 @@ export type Database = {
         Args: { p_scope: string; p_transaction_id: string }
         Returns: number
       }
+      ensure_income_transactions: {
+        Args: { p_months?: number }
+        Returns: number
+      }
       generate_due_notifications: { Args: never; Returns: number }
       has_role: {
         Args: {
@@ -443,6 +498,17 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      income_rule_due_date: {
+        Args: {
+          p_competence: string
+          p_kind: Database["public"]["Enums"]["income_rule_kind"]
+        }
+        Returns: string
+      }
+      nth_business_day: {
+        Args: { p_month: string; p_n: number }
+        Returns: string
       }
       resize_installment_plan: {
         Args: {
@@ -475,10 +541,21 @@ export type Database = {
         }
         Returns: number
       }
+      upsert_income_rule: {
+        Args: {
+          p_active?: boolean
+          p_apply_future?: boolean
+          p_category_id?: string
+          p_default_amount: number
+          p_kind: Database["public"]["Enums"]["income_rule_kind"]
+        }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "admin" | "user"
       category_kind: "receita" | "despesa" | "ambos"
+      income_rule_kind: "vale" | "salario"
       payment_method:
         | "pix"
         | "dinheiro"
@@ -619,6 +696,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "user"],
       category_kind: ["receita", "despesa", "ambos"],
+      income_rule_kind: ["vale", "salario"],
       payment_method: [
         "pix",
         "dinheiro",
