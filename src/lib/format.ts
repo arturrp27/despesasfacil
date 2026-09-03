@@ -38,3 +38,10 @@ export const addMonths = (date: Date, n: number) => {
 
 export const toISO = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+// Rótulo do mês de referência (competência), ex.: "setembro/2026"
+export const competenceLabel = (iso: string) => {
+  const [y, m] = iso.slice(0, 7).split("-");
+  const d = new Date(Number(y), Number(m) - 1, 1);
+  return `${d.toLocaleDateString("pt-BR", { month: "long" })}/${y}`;
+};
