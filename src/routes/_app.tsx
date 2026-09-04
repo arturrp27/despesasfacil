@@ -31,14 +31,22 @@ function AppLayout() {
         return;
       }
       if ((data ?? 0) > 0) {
-        for (const key of ["transactions", "dashboard-tx", "dashboard-upcoming", "dashboard-recent", "reports-month", "reports-year"]) {
+        for (const key of [
+          "transactions",
+          "dashboard-tx",
+          "dashboard-upcoming",
+          "dashboard-recent",
+          "reports-month",
+          "reports-year",
+        ]) {
           qc.invalidateQueries({ queryKey: [key] });
         }
       }
     })();
-    return () => { ignore = true; };
+    return () => {
+      ignore = true;
+    };
   }, [user, qc]);
-
 
   if (loading || !user) {
     return (
