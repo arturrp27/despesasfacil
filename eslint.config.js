@@ -37,4 +37,22 @@ export default tseslint.config(
     },
   },
   eslintPluginPrettier,
+  {
+    // Arquivos autogerados pela integração do backend: não são editáveis manualmente.
+    files: [
+      "src/integrations/supabase/previewAuthStorage.ts",
+      "src/integrations/supabase/types.ts",
+    ],
+    rules: {
+      "prefer-const": "off",
+      "prettier/prettier": "off",
+    },
+  },
+  {
+    // Primitivos shadcn/ui exportam variantes junto dos componentes por design.
+    files: ["src/components/ui/**/*.tsx"],
+    rules: {
+      "react-refresh/only-export-components": "off",
+    },
+  },
 );
