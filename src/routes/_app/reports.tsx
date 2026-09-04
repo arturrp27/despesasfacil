@@ -334,7 +334,7 @@ function ReportsPage() {
                     {t.categories?.name ?? "Sem categoria"}
                   </div>
                 </div>
-                <span className="font-semibold text-expense">{formatBRL(t.amount)}</span>
+                <span className="font-semibold text-expense">{formatBRL(Number(t.amount))}</span>
               </div>
             ))}
           </CardContent>
