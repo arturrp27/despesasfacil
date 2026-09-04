@@ -29,7 +29,11 @@ function SettingsPage() {
     queryFn: async () => {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return null;
-      const { data } = await supabase.from("user_settings").select("*").eq("user_id", u.user.id).maybeSingle();
+      const { data } = await supabase
+        .from("user_settings")
+        .select("*")
+        .eq("user_id", u.user.id)
+        .maybeSingle();
       return data;
     },
   });
@@ -87,12 +91,16 @@ function SettingsPage() {
       <IncomeRulesCard />
 
       <Card>
-        <CardHeader><CardTitle className="text-base">Notificações</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle className="text-base">Notificações</CardTitle>
+        </CardHeader>
         <CardContent className="space-y-5">
           <div className="space-y-2">
             <Label>Dias de antecedência para alertar vencimento</Label>
             <Input
-              type="number" min={0} max={60}
+              type="number"
+              min={0}
+              max={60}
               value={days}
               onChange={(e) => setDays(Math.max(0, Math.min(60, Number(e.target.value) || 0)))}
             />
@@ -112,28 +120,40 @@ function SettingsPage() {
           <div className="flex items-center justify-between gap-3">
             <div>
               <Label>Avisar sobre novas transações geradas</Label>
-              <p className="text-xs text-muted-foreground">Recorrências e parcelamentos criados automaticamente.</p>
+              <p className="text-xs text-muted-foreground">
+                Recorrências e parcelamentos criados automaticamente.
+              </p>
             </div>
             <Switch checked={notifyNew} onCheckedChange={setNotifyNew} />
           </div>
 
           <div className="rounded-lg border p-3 space-y-2">
             <div className="flex items-center gap-2">
-              {permission === "granted" ? <Bell className="h-4 w-4 text-success" /> : <BellOff className="h-4 w-4 text-muted-foreground" />}
+              {permission === "granted" ? (
+                <Bell className="h-4 w-4 text-success" />
+              ) : (
+                <BellOff className="h-4 w-4 text-muted-foreground" />
+              )}
               <span className="text-sm font-medium">Notificações no dispositivo</span>
             </div>
             <p className="text-xs text-muted-foreground">
               {permission === "granted" && "Ativadas. Você verá pop-ups do navegador."}
-              {permission === "denied" && "Bloqueadas. Habilite manualmente nas configurações do navegador/celular."}
-              {permission === "default" && "Conceda permissão para receber alertas no celular mesmo com o app em segundo plano."}
+              {permission === "denied" &&
+                "Bloqueadas. Habilite manualmente nas configurações do navegador/celular."}
+              {permission === "default" &&
+                "Conceda permissão para receber alertas no celular mesmo com o app em segundo plano."}
               {permission === "unsupported" && "Este navegador não suporta notificações."}
             </p>
             {permission === "default" && (
-              <Button size="sm" variant="outline" onClick={requestPermission}>Ativar notificações</Button>
+              <Button size="sm" variant="outline" onClick={requestPermission}>
+                Ativar notificações
+              </Button>
             )}
           </div>
 
-          <Button onClick={save} disabled={saving}>{saving ? "Salvando..." : "Salvar"}</Button>
+          <Button onClick={save} disabled={saving}>
+            {saving ? "Salvando..." : "Salvar"}
+          </Button>
         </CardContent>
       </Card>
     </div>

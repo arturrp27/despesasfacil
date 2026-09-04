@@ -10,11 +10,9 @@ const Input = z.object({
 
 async function getAdminClient() {
   const { createClient } = await import("@supabase/supabase-js");
-  return createClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { autoRefreshToken: false, persistSession: false } },
-  );
+  return createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
 }
 
 async function assertAdmin(userId: string) {

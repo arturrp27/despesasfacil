@@ -1,5 +1,23 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, ArrowLeftRight, Tags, CreditCard, BarChart3, LogOut, Wallet, Plus, Menu, PanelLeftClose, PanelLeftOpen, Users, Moon, Sun, Settings, Eye, EyeOff } from "lucide-react";
+import {
+  LayoutDashboard,
+  ArrowLeftRight,
+  Tags,
+  CreditCard,
+  BarChart3,
+  LogOut,
+  Wallet,
+  Plus,
+  Menu,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Users,
+  Moon,
+  Sun,
+  Settings,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import { usePrivacy } from "@/hooks/use-privacy";
 import { type ReactNode, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -18,7 +36,6 @@ const nav = [
   { to: "/users", label: "Usuários", icon: Users },
   { to: "/settings", label: "Configurações", icon: Settings },
 ];
-
 
 function NavList({ onClick }: { onClick?: () => void }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -46,7 +63,13 @@ function NavList({ onClick }: { onClick?: () => void }) {
   );
 }
 
-function SidebarContent({ onLogout, onNavigate }: { onLogout: () => void; onNavigate?: () => void }) {
+function SidebarContent({
+  onLogout,
+  onNavigate,
+}: {
+  onLogout: () => void;
+  onNavigate?: () => void;
+}) {
   return (
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
       <div className="flex items-center gap-2 px-5 py-5 border-b border-sidebar-border">
@@ -74,7 +97,12 @@ function SidebarContent({ onLogout, onNavigate }: { onLogout: () => void; onNavi
 function PrivacyToggle() {
   const { hidden, toggle } = usePrivacy();
   return (
-    <Button variant="ghost" size="icon" onClick={toggle} title={hidden ? "Mostrar valores" : "Ocultar valores"}>
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={toggle}
+      title={hidden ? "Mostrar valores" : "Ocultar valores"}
+    >
       {hidden ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
     </Button>
   );
@@ -83,7 +111,12 @@ function PrivacyToggle() {
 function ThemeToggle() {
   const { theme, toggle } = useTheme();
   return (
-    <Button variant="ghost" size="icon" onClick={toggle} title={theme === "dark" ? "Modo claro" : "Modo escuro"}>
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={toggle}
+      title={theme === "dark" ? "Modo claro" : "Modo escuro"}
+    >
       {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
     </Button>
   );
@@ -104,7 +137,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen flex bg-background">
-      <aside className={`hidden md:flex shrink-0 border-r border-sidebar-border transition-all duration-200 ${sidebarOpen ? "w-64" : "w-0 border-r-0 overflow-hidden"}`}>
+      <aside
+        className={`hidden md:flex shrink-0 border-r border-sidebar-border transition-all duration-200 ${sidebarOpen ? "w-64" : "w-0 border-r-0 overflow-hidden"}`}
+      >
         <SidebarContent onLogout={logout} />
       </aside>
 
@@ -113,7 +148,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="flex items-center gap-2 md:hidden">
             <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon"><Menu className="h-5 w-5" /></Button>
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-5 w-5" />
+                </Button>
               </SheetTrigger>
               <SheetContent side="left" className="p-0 w-64">
                 <SidebarContent onLogout={logout} onNavigate={() => setSheetOpen(false)} />
@@ -129,7 +166,11 @@ export function AppShell({ children }: { children: ReactNode }) {
               onClick={() => setSidebarOpen((v) => !v)}
               title={sidebarOpen ? "Ocultar menu" : "Mostrar menu"}
             >
-              {sidebarOpen ? <PanelLeftClose className="h-5 w-5" /> : <PanelLeftOpen className="h-5 w-5" />}
+              {sidebarOpen ? (
+                <PanelLeftClose className="h-5 w-5" />
+              ) : (
+                <PanelLeftOpen className="h-5 w-5" />
+              )}
             </Button>
             <h1 className="text-lg font-semibold capitalize">
               {nav.find((n) => n.to === pathname)?.label ?? ""}
@@ -146,11 +187,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-
-        <main key={privacyHidden ? "hidden" : "shown"} className="flex-1 p-4 md:p-8">{children}</main>
-
-
-
+        <main key={privacyHidden ? "hidden" : "shown"} className="flex-1 p-4 md:p-8">
+          {children}
+        </main>
 
         {/* Floating action mobile */}
         <Button
@@ -160,7 +199,6 @@ export function AppShell({ children }: { children: ReactNode }) {
         >
           <Plus className="h-6 w-6" />
         </Button>
-
 
         <TransactionDialog open={txOpen} onOpenChange={setTxOpen} />
       </div>

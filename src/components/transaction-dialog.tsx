@@ -1,11 +1,24 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -27,7 +40,6 @@ type Props = {
 type CategoryRow = { id: string; name: string; kind: string };
 type CardRow = { id: string; name: string };
 type EditScope = "one" | "future";
-
 
 export function TransactionDialog({ open, onOpenChange, transactionId }: Props) {
   const qc = useQueryClient();
@@ -54,19 +66,25 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
   const [creditCardId, setCreditCardId] = useState<string>("");
 
   const [busy, setBusy] = useState(false);
-  const [groupInfo, setGroupInfo] = useState<{ installment_group_id: string | null; recurring_rule_id: string | null; due_date: string } | null>(null);
+  const [groupInfo, setGroupInfo] = useState<{
+    installment_group_id: string | null;
+    recurring_rule_id: string | null;
+    due_date: string;
+  } | null>(null);
   const [editScope, setEditScope] = useState<EditScope>("one");
   const [originalInstallments, setOriginalInstallments] = useState<number>(0);
   const [loadedIsRecurring, setLoadedIsRecurring] = useState(false);
   const [loadedIsInstallment, setLoadedIsInstallment] = useState(false);
 
-
-
   const categoriesQ = useQuery({
     queryKey: ["categories"],
 
     queryFn: async () => {
-      const { data, error } = await supabase.from("categories").select("id,name,kind").eq("active", true).order("name");
+      const { data, error } = await supabase
+        .from("categories")
+        .select("id,name,kind")
+        .eq("active", true)
+        .order("name");
       if (error) throw error;
       return data as CategoryRow[];
     },
@@ -76,7 +94,11 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
   const cardsQ = useQuery({
     queryKey: ["credit_cards"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("credit_cards").select("id,name").eq("active", true).order("name");
+      const { data, error } = await supabase
+        .from("credit_cards")
+        .select("id,name")
+        .eq("active", true)
+        .order("name");
       if (error) throw error;
       return data as CardRow[];
     },
@@ -86,18 +108,35 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
   useEffect(() => {
     if (!open) return;
     if (!isEdit) {
-      setType("despesa"); setDescription(""); setAmount(""); setDueDate(toISO(new Date()));
-      setCategoryId(""); setStatus("pendente"); setPaymentDate(toISO(new Date())); setPaymentMethod("pix"); setNotes("");
-      setIsInstallment(false); setInstallments(2);
-      setIsRecurring(false); setFrequency("mensal"); setCreditCardId("");
-      setCompetenceMonth(toISO(new Date()).slice(0, 7)); setCompetenceTouched(false);
-      setGroupInfo(null); setEditScope("one");
-      setLoadedIsRecurring(false); setLoadedIsInstallment(false);
+      setType("despesa");
+      setDescription("");
+      setAmount("");
+      setDueDate(toISO(new Date()));
+      setCategoryId("");
+      setStatus("pendente");
+      setPaymentDate(toISO(new Date()));
+      setPaymentMethod("pix");
+      setNotes("");
+      setIsInstallment(false);
+      setInstallments(2);
+      setIsRecurring(false);
+      setFrequency("mensal");
+      setCreditCardId("");
+      setCompetenceMonth(toISO(new Date()).slice(0, 7));
+      setCompetenceTouched(false);
+      setGroupInfo(null);
+      setEditScope("one");
+      setLoadedIsRecurring(false);
+      setLoadedIsInstallment(false);
       return;
     }
     let ignore = false;
     (async () => {
-      const { data } = await supabase.from("transactions").select("*").eq("id", transactionId!).maybeSingle();
+      const { data } = await supabase
+        .from("transactions")
+        .select("*")
+        .eq("id", transactionId!)
+        .maybeSingle();
       if (!data || ignore) return;
       setType(data.type);
       // Strip "(i/n)" suffix from installment description for editing
@@ -110,7 +149,8 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
       setCompetenceMonth((data.competence_month ?? data.due_date).slice(0, 7));
       setCompetenceTouched(true);
       setCategoryId(data.category_id ?? "");
-      setStatus(data.status); setPaymentMethod(data.payment_method ?? "pix");
+      setStatus(data.status);
+      setPaymentMethod(data.payment_method ?? "pix");
       setPaymentDate(data.payment_date ?? toISO(new Date()));
       setNotes(data.notes ?? "");
       setCreditCardId(data.credit_card_id ?? "");
@@ -131,12 +171,14 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
         setOriginalInstallments(0);
       }
     })();
-    return () => { ignore = true; };
+    return () => {
+      ignore = true;
+    };
   }, [open, isEdit, transactionId]);
 
-
-
-  const filteredCats = (categoriesQ.data ?? []).filter(c => c.kind === type || c.kind === "ambos");
+  const filteredCats = (categoriesQ.data ?? []).filter(
+    (c) => c.kind === type || c.kind === "ambos",
+  );
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -184,11 +226,15 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
             p_payment_method: paymentMethod,
             p_notes: notes || undefined,
             p_credit_card_id: creditCardId || undefined,
-            p_payment_date: status === "pago" ? (paymentDate || toISO(new Date())) : undefined,
+            p_payment_date: status === "pago" ? paymentDate || toISO(new Date()) : undefined,
             p_competence_month: type === "receita" ? `${competenceMonth}-01` : undefined,
           });
           if (error) throw error;
-          toast.success(editScope === "future" ? "Esta e as transações futuras atualizadas." : "Transação atualizada.");
+          toast.success(
+            editScope === "future"
+              ? "Esta e as transações futuras atualizadas."
+              : "Transação atualizada.",
+          );
         }
       } else if (isRecurring && type === "despesa") {
         const { error } = await supabase.rpc("create_recurring_expense", {
@@ -217,14 +263,22 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
           p_notes: notes || undefined,
         });
         if (error) throw error;
-        toast.success(`${n} parcelas criadas (total ${total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}).`);
+        toast.success(
+          `${n} parcelas criadas (total ${total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}).`,
+        );
       } else {
         const { error } = await supabase.from("transactions").insert({
           user_id: sessionData.session.user.id,
-          type, description: description.trim(), amount: valueNum, due_date: dueDate,
-          category_id: categoryId || undefined, status, payment_method: paymentMethod,
-          notes: notes || null, credit_card_id: creditCardId || null,
-          payment_date: status === "pago" ? (paymentDate || toISO(new Date())) : null,
+          type,
+          description: description.trim(),
+          amount: valueNum,
+          due_date: dueDate,
+          category_id: categoryId || undefined,
+          status,
+          payment_method: paymentMethod,
+          notes: notes || null,
+          credit_card_id: creditCardId || null,
+          payment_date: status === "pago" ? paymentDate || toISO(new Date()) : null,
           competence_month: `${type === "receita" ? competenceMonth : dueDate.slice(0, 7)}-01`,
         });
         if (error) throw error;
@@ -251,20 +305,33 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
         <form onSubmit={onSubmit} className="space-y-4">
           <Tabs value={type} onValueChange={(v) => setType(v as "despesa" | "receita")}>
             <TabsList className="grid grid-cols-2 w-full">
-              <TabsTrigger value="despesa" className="data-[state=active]:text-expense">Despesa</TabsTrigger>
-              <TabsTrigger value="receita" className="data-[state=active]:text-income">Receita</TabsTrigger>
+              <TabsTrigger value="despesa" className="data-[state=active]:text-expense">
+                Despesa
+              </TabsTrigger>
+              <TabsTrigger value="receita" className="data-[state=active]:text-income">
+                Receita
+              </TabsTrigger>
             </TabsList>
           </Tabs>
 
           <div className="space-y-2">
             <Label>Descrição *</Label>
-            <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Ex.: Aluguel" />
+            <Input
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Ex.: Aluguel"
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label>{isInstallment && !isEdit ? "Valor da parcela *" : "Valor *"}</Label>
-              <Input inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0,00" />
+              <Input
+                inputMode="decimal"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="0,00"
+              />
             </div>
 
             <div className="space-y-2">
@@ -274,7 +341,8 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
                 value={dueDate}
                 onChange={(e) => {
                   setDueDate(e.target.value);
-                  if (!competenceTouched && e.target.value) setCompetenceMonth(e.target.value.slice(0, 7));
+                  if (!competenceTouched && e.target.value)
+                    setCompetenceMonth(e.target.value.slice(0, 7));
                 }}
               />
             </div>
@@ -286,9 +354,15 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
               <Input
                 type="month"
                 value={competenceMonth}
-                onChange={(e) => { setCompetenceMonth(e.target.value); setCompetenceTouched(true); }}
+                onChange={(e) => {
+                  setCompetenceMonth(e.target.value);
+                  setCompetenceTouched(true);
+                }}
               />
-              <p className="text-xs text-muted-foreground">Mês do orçamento a que esta receita pertence (ex.: vale recebido em 20/08 com referência setembro).</p>
+              <p className="text-xs text-muted-foreground">
+                Mês do orçamento a que esta receita pertence (ex.: vale recebido em 20/08 com
+                referência setembro).
+              </p>
             </div>
           )}
 
@@ -296,18 +370,27 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
             <div className="space-y-2">
               <Label>Categoria</Label>
               <Select value={categoryId} onValueChange={setCategoryId}>
-                <SelectTrigger><SelectValue placeholder="Selecionar" /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecionar" />
+                </SelectTrigger>
                 <SelectContent>
                   {filteredCats.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
               <Label>Forma de pagamento</Label>
-              <Select value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as PaymentMethod)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+              <Select
+                value={paymentMethod}
+                onValueChange={(v) => setPaymentMethod(v as PaymentMethod)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="pix">Pix</SelectItem>
                   <SelectItem value="dinheiro">Dinheiro</SelectItem>
@@ -324,11 +407,20 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
           {!isEdit && (cardsQ.data?.length ?? 0) > 0 && type === "despesa" && (
             <div className="space-y-2">
               <Label>Cartão (opcional)</Label>
-              <Select value={creditCardId || "none"} onValueChange={(v) => setCreditCardId(v === "none" ? "" : v)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+              <Select
+                value={creditCardId || "none"}
+                onValueChange={(v) => setCreditCardId(v === "none" ? "" : v)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">Nenhum</SelectItem>
-                  {cardsQ.data!.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                  {cardsQ.data!.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -336,7 +428,11 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
 
           <div className="space-y-2">
             <Label>Status</Label>
-            <RadioGroup value={status} onValueChange={(v) => setStatus(v as "pendente" | "pago")} className="flex gap-4">
+            <RadioGroup
+              value={status}
+              onValueChange={(v) => setStatus(v as "pendente" | "pago")}
+              className="flex gap-4"
+            >
               <label className="flex items-center gap-2 cursor-pointer">
                 <RadioGroupItem value="pendente" /> Pendente
               </label>
@@ -346,32 +442,39 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
             </RadioGroup>
           </div>
 
-          {isEdit && (
-            groupInfo?.installment_group_id ||
-            groupInfo?.recurring_rule_id ||
-            loadedIsRecurring ||
-            loadedIsInstallment
-          ) && (
-            <div className="rounded-lg border border-pending p-3 space-y-2 bg-pending/20">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-pending" />
-                <Label className="text-foreground">Aplicar alterações a</Label>
+          {isEdit &&
+            (groupInfo?.installment_group_id ||
+              groupInfo?.recurring_rule_id ||
+              loadedIsRecurring ||
+              loadedIsInstallment) && (
+              <div className="rounded-lg border border-pending p-3 space-y-2 bg-pending/20">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 text-pending" />
+                  <Label className="text-foreground">Aplicar alterações a</Label>
+                </div>
+                <RadioGroup
+                  value={editScope}
+                  onValueChange={(v) => setEditScope(v as EditScope)}
+                  className="flex flex-col gap-2"
+                >
+                  <label className="flex items-center gap-2 cursor-pointer text-sm">
+                    <RadioGroupItem value="one" /> Somente esta transação
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer text-sm">
+                    <RadioGroupItem value="future" /> Esta e todas as futuras
+                  </label>
+                </RadioGroup>
               </div>
-              <RadioGroup value={editScope} onValueChange={(v) => setEditScope(v as EditScope)} className="flex flex-col gap-2">
-                <label className="flex items-center gap-2 cursor-pointer text-sm">
-                  <RadioGroupItem value="one" /> Somente esta transação
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer text-sm">
-                  <RadioGroupItem value="future" /> Esta e todas as futuras
-                </label>
-              </RadioGroup>
-            </div>
-          )}
+            )}
 
           {status === "pago" && (
             <div className="space-y-2">
               <Label>Data do pagamento</Label>
-              <Input type="date" value={paymentDate} onChange={(e) => setPaymentDate(e.target.value)} />
+              <Input
+                type="date"
+                value={paymentDate}
+                onChange={(e) => setPaymentDate(e.target.value)}
+              />
               <p className="text-xs text-muted-foreground">Pode ser uma data passada ou futura.</p>
             </div>
           )}
@@ -382,68 +485,113 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label className="text-xs text-muted-foreground">Nº de parcelas</Label>
-                  <Input type="number" min={1} max={120} value={installments} onChange={(e) => setInstallments(Number(e.target.value))} />
+                  <Input
+                    type="number"
+                    min={1}
+                    max={120}
+                    value={installments}
+                    onChange={(e) => setInstallments(Number(e.target.value))}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-xs text-muted-foreground">Total da compra</Label>
-                  <Input disabled value={(parseAmount(amount) * Math.max(1, installments)).toLocaleString("pt-BR", { minimumFractionDigits: 2 })} />
+                  <Input
+                    disabled
+                    value={(parseAmount(amount) * Math.max(1, installments)).toLocaleString(
+                      "pt-BR",
+                      { minimumFractionDigits: 2 },
+                    )}
+                  />
                 </div>
               </div>
               {installments !== originalInstallments && (
                 <p className="text-xs text-muted-foreground">
-                  Alterar o número irá {installments > originalInstallments ? `criar ${installments - originalInstallments} novas parcelas` : `excluir ${originalInstallments - installments} parcelas excedentes`} e reaplicar valor e descrição em todo o grupo.
+                  Alterar o número irá{" "}
+                  {installments > originalInstallments
+                    ? `criar ${installments - originalInstallments} novas parcelas`
+                    : `excluir ${originalInstallments - installments} parcelas excedentes`}{" "}
+                  e reaplicar valor e descrição em todo o grupo.
                 </p>
               )}
             </div>
           )}
 
           {!isEdit && type === "despesa" && (
-
             <>
               <div className="rounded-lg border p-3 space-y-3">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="inst">Compra parcelada</Label>
-                  <Switch id="inst" checked={isInstallment} onCheckedChange={(v) => { setIsInstallment(v); if (v) setIsRecurring(false); }} />
+                  <Switch
+                    id="inst"
+                    checked={isInstallment}
+                    onCheckedChange={(v) => {
+                      setIsInstallment(v);
+                      if (v) setIsRecurring(false);
+                    }}
+                  />
                 </div>
                 {isInstallment && (
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-2">
                       <Label>Nº de parcelas</Label>
-                      <Input type="number" min={2} max={120} value={installments} onChange={(e) => setInstallments(Number(e.target.value))} />
+                      <Input
+                        type="number"
+                        min={2}
+                        max={120}
+                        value={installments}
+                        onChange={(e) => setInstallments(Number(e.target.value))}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label>Total da compra</Label>
-                      <Input disabled value={(parseAmount(amount) * Math.max(1, installments)).toLocaleString("pt-BR", { minimumFractionDigits: 2 })} />
+                      <Input
+                        disabled
+                        value={(parseAmount(amount) * Math.max(1, installments)).toLocaleString(
+                          "pt-BR",
+                          { minimumFractionDigits: 2 },
+                        )}
+                      />
                     </div>
                   </div>
                 )}
-
               </div>
 
               <div className="rounded-lg border p-3 space-y-3">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="rec">Despesa recorrente</Label>
-                  <Switch id="rec" checked={isRecurring} onCheckedChange={(v) => { setIsRecurring(v); if (v) setIsInstallment(false); }} />
+                  <Switch
+                    id="rec"
+                    checked={isRecurring}
+                    onCheckedChange={(v) => {
+                      setIsRecurring(v);
+                      if (v) setIsInstallment(false);
+                    }}
+                  />
                 </div>
                 {isRecurring && (
                   <div className="space-y-2">
                     <Label>Frequência</Label>
-                    <Select value={frequency} onValueChange={(v) => setFrequency(v as "mensal" | "semanal" | "anual")}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
+                    <Select
+                      value={frequency}
+                      onValueChange={(v) => setFrequency(v as "mensal" | "semanal" | "anual")}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="mensal">Mensal</SelectItem>
                         <SelectItem value="semanal">Semanal</SelectItem>
                         <SelectItem value="anual">Anual</SelectItem>
                       </SelectContent>
                     </Select>
-                    <p className="text-xs text-muted-foreground">Serão criados os próximos 12 lançamentos automaticamente.</p>
+                    <p className="text-xs text-muted-foreground">
+                      Serão criados os próximos 12 lançamentos automaticamente.
+                    </p>
                   </div>
                 )}
               </div>
             </>
           )}
-
-
 
           <div className="space-y-2">
             <Label>Observações</Label>
@@ -451,7 +599,9 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Cancelar
+            </Button>
             <Button type="submit" disabled={busy}>
               {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Salvar
             </Button>

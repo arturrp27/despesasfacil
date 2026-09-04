@@ -13,7 +13,10 @@ import { friendlyError } from "@/lib/errors";
 type Kind = "vale" | "salario";
 
 const LABELS: Record<Kind, { title: string; hint: string }> = {
-  vale: { title: "Vale", hint: "Recebido no dia 20 do mês anterior, com referência no mês seguinte." },
+  vale: {
+    title: "Vale",
+    hint: "Recebido no dia 20 do mês anterior, com referência no mês seguinte.",
+  },
   salario: { title: "Salário", hint: "Recebido no 5º dia útil do próprio mês de referência." },
 };
 
@@ -30,7 +33,9 @@ export function IncomeRulesCard() {
   const rulesQ = useQuery({
     queryKey: ["income_rules"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("income_rules").select("id,kind,default_amount,active");
+      const { data, error } = await supabase
+        .from("income_rules")
+        .select("id,kind,default_amount,active");
       if (error) throw error;
       return data;
     },
@@ -75,7 +80,9 @@ export function IncomeRulesCard() {
       if (error) throw error;
 
       if (s.active) {
-        const { error: genError } = await supabase.rpc("ensure_income_transactions", { p_months: 12 });
+        const { error: genError } = await supabase.rpc("ensure_income_transactions", {
+          p_months: 12,
+        });
         if (genError) throw genError;
       }
       toast.success(`${LABELS[kind].title} atualizado.`);
@@ -92,7 +99,8 @@ export function IncomeRulesCard() {
       <CardHeader>
         <CardTitle className="text-base">Receitas automáticas</CardTitle>
         <CardDescription>
-          Configure uma vez e os lançamentos dos próximos 12 meses de referência são gerados automaticamente.
+          Configure uma vez e os lançamentos dos próximos 12 meses de referência são gerados
+          automaticamente.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
@@ -105,7 +113,9 @@ export function IncomeRulesCard() {
               </div>
               <Switch
                 checked={state[kind].active}
-                onCheckedChange={(v) => setState((p) => ({ ...p, [kind]: { ...p[kind], active: v } }))}
+                onCheckedChange={(v) =>
+                  setState((p) => ({ ...p, [kind]: { ...p[kind], active: v } }))
+                }
               />
             </div>
             <div className="space-y-2">
@@ -114,16 +124,21 @@ export function IncomeRulesCard() {
                 inputMode="decimal"
                 placeholder="0,00"
                 value={state[kind].amount}
-                onChange={(e) => setState((p) => ({ ...p, [kind]: { ...p[kind], amount: e.target.value } }))}
+                onChange={(e) =>
+                  setState((p) => ({ ...p, [kind]: { ...p[kind], amount: e.target.value } }))
+                }
               />
             </div>
             <div className="flex items-center justify-between gap-3">
               <p className="text-xs text-muted-foreground">
-                Aplicar este valor aos meses futuros ainda pendentes (não altera meses já ajustados no passado).
+                Aplicar este valor aos meses futuros ainda pendentes (não altera meses já ajustados
+                no passado).
               </p>
               <Switch
                 checked={state[kind].applyFuture}
-                onCheckedChange={(v) => setState((p) => ({ ...p, [kind]: { ...p[kind], applyFuture: v } }))}
+                onCheckedChange={(v) =>
+                  setState((p) => ({ ...p, [kind]: { ...p[kind], applyFuture: v } }))
+                }
               />
             </div>
             <Button size="sm" onClick={() => save(kind)} disabled={saving === kind}>

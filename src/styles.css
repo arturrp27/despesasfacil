@@ -123,8 +123,15 @@
 }
 
 @layer base {
-  * { border-color: var(--color-border); min-width: 0; }
-  html, body { overflow-x: hidden; max-width: 100vw; }
+  * {
+    border-color: var(--color-border);
+    min-width: 0;
+  }
+  html,
+  body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);

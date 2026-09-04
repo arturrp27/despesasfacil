@@ -49,16 +49,29 @@ export function NotificationBell() {
         .channel(`notifications-bell-${userId}-${Math.random().toString(36).slice(2)}`)
         .on(
           "postgres_changes",
-          { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "notifications",
+            filter: `user_id=eq.${userId}`,
+          },
           (payload) => {
             const n = payload.new as Notif;
             if (seenIdsRef.current.has(n.id)) return;
             seenIdsRef.current.add(n.id);
             qc.invalidateQueries({ queryKey: ["notifications"] });
-            if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
-              try { new Notification(n.title, { body: n.body ?? undefined, tag: n.id }); } catch { /* noop */ }
+            if (
+              typeof window !== "undefined" &&
+              "Notification" in window &&
+              Notification.permission === "granted"
+            ) {
+              try {
+                new Notification(n.title, { body: n.body ?? undefined, tag: n.id });
+              } catch {
+                /* noop */
+              }
             }
-          }
+          },
         )
         .subscribe();
     })();
@@ -71,8 +84,11 @@ export function NotificationBell() {
   const markAllRead = async () => {
     const { data: u } = await supabase.auth.getUser();
     if (!u.user) return;
-    await supabase.from("notifications").update({ read_at: new Date().toISOString() })
-      .is("read_at", null).eq("user_id", u.user.id);
+    await supabase
+      .from("notifications")
+      .update({ read_at: new Date().toISOString() })
+      .is("read_at", null)
+      .eq("user_id", u.user.id);
     qc.invalidateQueries({ queryKey: ["notifications"] });
   };
 
@@ -87,9 +103,13 @@ export function NotificationBell() {
   };
 
   const iconFor = (k: Notif["kind"]) =>
-    k === "overdue" ? <AlertTriangle className="h-4 w-4 text-destructive" />
-    : k === "due_soon" ? <Clock className="h-4 w-4 text-warning" />
-    : <Plus className="h-4 w-4 text-success" />;
+    k === "overdue" ? (
+      <AlertTriangle className="h-4 w-4 text-destructive" />
+    ) : k === "due_soon" ? (
+      <Clock className="h-4 w-4 text-warning" />
+    ) : (
+      <Plus className="h-4 w-4 text-success" />
+    );
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -122,18 +142,35 @@ export function NotificationBell() {
                   <div className="mt-0.5 shrink-0">{iconFor(n.kind)}</div>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium truncate">{n.title}</div>
-                    {n.body && <div className="text-xs text-muted-foreground truncate">{n.body}</div>}
+                    {n.body && (
+                      <div className="text-xs text-muted-foreground truncate">{n.body}</div>
+                    )}
                     <div className="text-[10px] text-muted-foreground mt-0.5">
-                      {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: ptBR })}
+                      {formatDistanceToNow(new Date(n.created_at), {
+                        addSuffix: true,
+                        locale: ptBR,
+                      })}
                     </div>
                   </div>
                   <div className="flex flex-col gap-0.5 shrink-0">
                     {!n.read_at && (
-                      <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => markOne(n.id)} title="Marcar como lida">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-6 w-6"
+                        onClick={() => markOne(n.id)}
+                        title="Marcar como lida"
+                      >
                         <Check className="h-3 w-3" />
                       </Button>
                     )}
-                    <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => remove(n.id)} title="Remover">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-6 w-6"
+                      onClick={() => remove(n.id)}
+                      title="Remover"
+                    >
                       <Trash2 className="h-3 w-3 text-destructive" />
                     </Button>
                   </div>
