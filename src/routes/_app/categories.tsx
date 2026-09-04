@@ -6,8 +6,21 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 
@@ -32,7 +45,12 @@ function CategoriesPage() {
     },
   });
 
-  const reset = () => { setEditId(null); setName(""); setKind("despesa"); setColor("#64748b"); };
+  const reset = () => {
+    setEditId(null);
+    setName("");
+    setKind("despesa");
+    setColor("#64748b");
+  };
 
   const save = async (e: FormEvent) => {
     e.preventDefault();
@@ -40,11 +58,16 @@ function CategoriesPage() {
     const { data: u } = await supabase.auth.getUser();
     const payload = { user_id: u.user!.id, name, kind: kind as never, color };
     const { error } = editId
-      ? await supabase.from("categories").update({ name, kind: kind as never, color }).eq("id", editId)
+      ? await supabase
+          .from("categories")
+          .update({ name, kind: kind as never, color })
+          .eq("id", editId)
       : await supabase.from("categories").insert(payload);
     if (error) return toast.error(error.message);
     toast.success("Categoria salva.");
-    setOpen(false); reset(); qc.invalidateQueries({ queryKey: ["categories-all"] });
+    setOpen(false);
+    reset();
+    qc.invalidateQueries({ queryKey: ["categories-all"] });
     qc.invalidateQueries({ queryKey: ["categories"] });
   };
 
@@ -57,23 +80,44 @@ function CategoriesPage() {
   };
 
   const edit = (c: { id: string; name: string; kind: string; color: string }) => {
-    setEditId(c.id); setName(c.name); setKind(c.kind); setColor(c.color); setOpen(true);
+    setEditId(c.id);
+    setName(c.name);
+    setKind(c.kind);
+    setColor(c.color);
+    setOpen(true);
   };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Suas categorias</h2>
-        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
-          <DialogTrigger asChild><Button size="sm"><Plus className="h-4 w-4 mr-1" /> Nova</Button></DialogTrigger>
+        <Dialog
+          open={open}
+          onOpenChange={(v) => {
+            setOpen(v);
+            if (!v) reset();
+          }}
+        >
+          <DialogTrigger asChild>
+            <Button size="sm">
+              <Plus className="h-4 w-4 mr-1" /> Nova
+            </Button>
+          </DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle>{editId ? "Editar" : "Nova"} categoria</DialogTitle></DialogHeader>
+            <DialogHeader>
+              <DialogTitle>{editId ? "Editar" : "Nova"} categoria</DialogTitle>
+            </DialogHeader>
             <form onSubmit={save} className="space-y-3">
-              <div className="space-y-2"><Label>Nome</Label><Input value={name} onChange={(e) => setName(e.target.value)} /></div>
+              <div className="space-y-2">
+                <Label>Nome</Label>
+                <Input value={name} onChange={(e) => setName(e.target.value)} />
+              </div>
               <div className="space-y-2">
                 <Label>Tipo</Label>
                 <Select value={kind} onValueChange={setKind}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="despesa">Despesa</SelectItem>
                     <SelectItem value="receita">Receita</SelectItem>
@@ -81,8 +125,18 @@ function CategoriesPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2"><Label>Cor</Label><Input type="color" value={color} onChange={(e) => setColor(e.target.value)} className="h-10 w-20" /></div>
-              <DialogFooter><Button type="submit">Salvar</Button></DialogFooter>
+              <div className="space-y-2">
+                <Label>Cor</Label>
+                <Input
+                  type="color"
+                  value={color}
+                  onChange={(e) => setColor(e.target.value)}
+                  className="h-10 w-20"
+                />
+              </div>
+              <DialogFooter>
+                <Button type="submit">Salvar</Button>
+              </DialogFooter>
             </form>
           </DialogContent>
         </Dialog>
@@ -97,8 +151,12 @@ function CategoriesPage() {
                 <div className="font-medium text-sm">{c.name}</div>
                 <div className="text-xs text-muted-foreground capitalize">{c.kind}</div>
               </div>
-              <Button size="icon" variant="ghost" onClick={() => edit(c)}><Pencil className="h-4 w-4" /></Button>
-              <Button size="icon" variant="ghost" onClick={() => remove(c.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+              <Button size="icon" variant="ghost" onClick={() => edit(c)}>
+                <Pencil className="h-4 w-4" />
+              </Button>
+              <Button size="icon" variant="ghost" onClick={() => remove(c.id)}>
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </Button>
             </CardContent>
           </Card>
         ))}

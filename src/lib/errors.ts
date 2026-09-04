@@ -22,7 +22,10 @@ const MESSAGES: Record<string, string> = {
   owner_required: "Sua sessão expirou. Entre novamente para continuar.",
 };
 
-export function friendlyError(error: unknown, fallback = "Não foi possível concluir a operação."): string {
+export function friendlyError(
+  error: unknown,
+  fallback = "Não foi possível concluir a operação.",
+): string {
   if (typeof console !== "undefined") console.error("[app]", error);
 
   const raw =

@@ -7,7 +7,10 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Controle Financeiro Pessoal" },
-      { name: "description", content: "Organize suas receitas, despesas, parcelas e contas recorrentes em um só lugar." },
+      {
+        name: "description",
+        content: "Organize suas receitas, despesas, parcelas e contas recorrentes em um só lugar.",
+      },
     ],
   }),
   component: Index,

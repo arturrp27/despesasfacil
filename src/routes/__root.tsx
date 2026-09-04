@@ -90,8 +90,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:title", content: "Controle Financeiro Pessoal" },
       { name: "twitter:description", content: "Suas finanças pessoais, no controle." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/daff7414-73a1-4ffd-ac2f-991d92b817b4/id-preview-93269bc8--4aee5481-bc47-4072-b52c-74a296931c48.lovable.app-1780485801036.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/daff7414-73a1-4ffd-ac2f-991d92b817b4/id-preview-93269bc8--4aee5481-bc47-4072-b52c-74a296931c48.lovable.app-1780485801036.png" },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/daff7414-73a1-4ffd-ac2f-991d92b817b4/id-preview-93269bc8--4aee5481-bc47-4072-b52c-74a296931c48.lovable.app-1780485801036.png",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/daff7414-73a1-4ffd-ac2f-991d92b817b4/id-preview-93269bc8--4aee5481-bc47-4072-b52c-74a296931c48.lovable.app-1780485801036.png",
+      },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
