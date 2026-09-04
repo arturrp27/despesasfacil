@@ -48,6 +48,16 @@ const monthsPT = [
 
 type PeriodMode = "month" | "year";
 
+type ReportRow = {
+  amount: number | string;
+  type: string;
+  status: string;
+  description: string | null;
+  due_date: string;
+  competence_month: string | null;
+  categories: { name: string | null; color: string | null } | null;
+};
+
 function ReportsPage() {
   const now = new Date();
   const { hidden: privacyHidden } = usePrivacy();
@@ -77,7 +87,7 @@ function ReportsPage() {
         .select(selectCols)
         .gte("competence_month", startMonth)
         .lte("competence_month", endMonth);
-      return data ?? [];
+      return (data ?? []) as unknown as ReportRow[];
     },
   });
 
@@ -89,18 +99,21 @@ function ReportsPage() {
         .select(selectCols)
         .gte("competence_month", yearStart)
         .lte("competence_month", yearEnd);
-      return data ?? [];
+      return (data ?? []) as unknown as ReportRow[];
     },
   });
 
-  const periodData = mode === "month" ? (monthQ.data ?? []) : (yearQ.data ?? []);
+  const periodData = useMemo<ReportRow[]>(
+    () => (mode === "month" ? (monthQ.data ?? []) : (yearQ.data ?? [])),
+    [mode, monthQ.data, yearQ.data],
+  );
 
   const byCategory = useMemo(() => {
     const map: Record<string, { name: string; value: number; color: string }> = {};
     for (const t of periodData) {
       if (t.type !== "despesa") continue;
-      const name = (t as any).categories?.name ?? "Sem categoria";
-      const color = (t as any).categories?.color ?? "#94a3b8";
+      const name = t.categories?.name ?? "Sem categoria";
+      const color = t.categories?.color ?? "#94a3b8";
       if (!map[name]) map[name] = { name, value: 0, color };
       map[name].value += Number(t.amount);
     }
@@ -316,9 +329,9 @@ function ReportsPage() {
                 className="flex items-center justify-between py-1.5 border-b last:border-0"
               >
                 <div>
-                  <div className="text-sm font-medium">{(t as any).description}</div>
+                  <div className="text-sm font-medium">{t.description}</div>
                   <div className="text-xs text-muted-foreground">
-                    {(t as any).categories?.name ?? "Sem categoria"}
+                    {t.categories?.name ?? "Sem categoria"}
                   </div>
                 </div>
                 <span className="font-semibold text-expense">{formatBRL(t.amount)}</span>
