@@ -38,7 +38,6 @@ type Props = {
 };
 
 type CategoryRow = { id: string; name: string; kind: string };
-type CardRow = { id: string; name: string };
 type EditScope = "one" | "future";
 
 export function TransactionDialog({ open, onOpenChange, transactionId }: Props) {
@@ -62,8 +61,6 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
 
   const [isRecurring, setIsRecurring] = useState(false);
   const [frequency, setFrequency] = useState<"mensal" | "semanal" | "anual">("mensal");
-
-  const [creditCardId, setCreditCardId] = useState<string>("");
 
   const [busy, setBusy] = useState(false);
   const [groupInfo, setGroupInfo] = useState<{
@@ -91,20 +88,6 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
     enabled: open,
   });
 
-  const cardsQ = useQuery({
-    queryKey: ["credit_cards"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("credit_cards")
-        .select("id,name")
-        .eq("active", true)
-        .order("name");
-      if (error) throw error;
-      return data as CardRow[];
-    },
-    enabled: open,
-  });
-
   useEffect(() => {
     if (!open) return;
     if (!isEdit) {
@@ -121,7 +104,6 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
       setInstallments(2);
       setIsRecurring(false);
       setFrequency("mensal");
-      setCreditCardId("");
       setCompetenceMonth(toISO(new Date()).slice(0, 7));
       setCompetenceTouched(false);
       setGroupInfo(null);
@@ -153,7 +135,6 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
       setPaymentMethod(data.payment_method ?? "pix");
       setPaymentDate(data.payment_date ?? toISO(new Date()));
       setNotes(data.notes ?? "");
-      setCreditCardId(data.credit_card_id ?? "");
       setGroupInfo({
         installment_group_id: data.installment_group_id ?? null,
         recurring_rule_id: data.recurring_rule_id ?? null,
@@ -208,7 +189,6 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
             p_installments: newN,
             p_category_id: categoryId || undefined,
             p_payment_method: paymentMethod,
-            p_credit_card_id: creditCardId || undefined,
             p_notes: notes || undefined,
           });
           if (error) throw error;
@@ -225,7 +205,6 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
             p_category_id: categoryId || undefined,
             p_payment_method: paymentMethod,
             p_notes: notes || undefined,
-            p_credit_card_id: creditCardId || undefined,
             p_payment_date: status === "pago" ? paymentDate || toISO(new Date()) : undefined,
             p_competence_month: type === "receita" ? `${competenceMonth}-01` : undefined,
           });
@@ -259,7 +238,6 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
           p_first_due_date: dueDate,
           p_category_id: categoryId || undefined,
           p_payment_method: paymentMethod,
-          p_credit_card_id: creditCardId || undefined,
           p_notes: notes || undefined,
         });
         if (error) throw error;
@@ -277,7 +255,6 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
           status,
           payment_method: paymentMethod,
           notes: notes || null,
-          credit_card_id: creditCardId || null,
           payment_date: status === "pago" ? paymentDate || toISO(new Date()) : null,
           competence_month: `${type === "receita" ? competenceMonth : dueDate.slice(0, 7)}-01`,
         });
@@ -395,7 +372,6 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
                   <SelectItem value="pix">Pix</SelectItem>
                   <SelectItem value="dinheiro">Dinheiro</SelectItem>
                   <SelectItem value="debito">Débito</SelectItem>
-                  <SelectItem value="credito">Crédito</SelectItem>
                   <SelectItem value="boleto">Boleto</SelectItem>
                   <SelectItem value="transferencia">Transferência</SelectItem>
                   <SelectItem value="outro">Outro</SelectItem>
@@ -403,28 +379,6 @@ export function TransactionDialog({ open, onOpenChange, transactionId }: Props) 
               </Select>
             </div>
           </div>
-
-          {!isEdit && (cardsQ.data?.length ?? 0) > 0 && type === "despesa" && (
-            <div className="space-y-2">
-              <Label>Cartão (opcional)</Label>
-              <Select
-                value={creditCardId || "none"}
-                onValueChange={(v) => setCreditCardId(v === "none" ? "" : v)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Nenhum</SelectItem>
-                  {cardsQ.data!.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
 
           <div className="space-y-2">
             <Label>Status</Label>
