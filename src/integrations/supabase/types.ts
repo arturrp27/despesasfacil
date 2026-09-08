@@ -47,39 +47,6 @@ export type Database = {
         }
         Relationships: []
       }
-      credit_cards: {
-        Row: {
-          active: boolean
-          closing_day: number
-          created_at: string
-          credit_limit: number | null
-          due_day: number
-          id: string
-          name: string
-          user_id: string
-        }
-        Insert: {
-          active?: boolean
-          closing_day: number
-          created_at?: string
-          credit_limit?: number | null
-          due_day: number
-          id?: string
-          name: string
-          user_id: string
-        }
-        Update: {
-          active?: boolean
-          closing_day?: number
-          created_at?: string
-          credit_limit?: number | null
-          due_day?: number
-          id?: string
-          name?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       income_rules: {
         Row: {
           active: boolean
@@ -125,7 +92,6 @@ export type Database = {
         Row: {
           category_id: string | null
           created_at: string
-          credit_card_id: string | null
           description: string
           first_due_date: string
           id: string
@@ -137,7 +103,6 @@ export type Database = {
         Insert: {
           category_id?: string | null
           created_at?: string
-          credit_card_id?: string | null
           description: string
           first_due_date: string
           id?: string
@@ -149,7 +114,6 @@ export type Database = {
         Update: {
           category_id?: string | null
           created_at?: string
-          credit_card_id?: string | null
           description?: string
           first_due_date?: string
           id?: string
@@ -159,13 +123,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "installment_groups_card_fk"
-            columns: ["credit_card_id"]
-            isOneToOne: false
-            referencedRelation: "credit_cards"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "installment_groups_category_id_fkey"
             columns: ["category_id"]
@@ -299,7 +256,6 @@ export type Database = {
           category_id: string | null
           competence_month: string
           created_at: string
-          credit_card_id: string | null
           description: string
           due_date: string
           id: string
@@ -323,7 +279,6 @@ export type Database = {
           category_id?: string | null
           competence_month: string
           created_at?: string
-          credit_card_id?: string | null
           description: string
           due_date: string
           id?: string
@@ -347,7 +302,6 @@ export type Database = {
           category_id?: string | null
           competence_month?: string
           created_at?: string
-          credit_card_id?: string | null
           description?: string
           due_date?: string
           id?: string
@@ -372,13 +326,6 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "transactions_credit_card_id_fkey"
-            columns: ["credit_card_id"]
-            isOneToOne: false
-            referencedRelation: "credit_cards"
             referencedColumns: ["id"]
           },
           {
@@ -461,7 +408,6 @@ export type Database = {
         Args: {
           p_amount: number
           p_category_id?: string
-          p_credit_card_id?: string
           p_description: string
           p_first_due_date: string
           p_installments: number
@@ -514,7 +460,6 @@ export type Database = {
         Args: {
           p_amount: number
           p_category_id?: string
-          p_credit_card_id?: string
           p_description: string
           p_group_id: string
           p_installments: number
@@ -528,7 +473,6 @@ export type Database = {
           p_amount: number
           p_category_id?: string
           p_competence_month?: string
-          p_credit_card_id?: string
           p_description: string
           p_due_date: string
           p_notes?: string
@@ -560,7 +504,6 @@ export type Database = {
         | "pix"
         | "dinheiro"
         | "debito"
-        | "credito"
         | "boleto"
         | "transferencia"
         | "outro"
@@ -701,7 +644,6 @@ export const Constants = {
         "pix",
         "dinheiro",
         "debito",
-        "credito",
         "boleto",
         "transferencia",
         "outro",
