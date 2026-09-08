@@ -11,7 +11,6 @@ const MESSAGES: Record<string, string> = {
   invalid_due_date: "Informe uma data de vencimento válida.",
   invalid_scope: "Escopo da operação inválido.",
   invalid_category_owner: "Categoria inválida.",
-  invalid_card_owner: "Cartão inválido.",
   invalid_group_owner: "Parcelamento inválido.",
   invalid_rule_owner: "Recorrência inválida.",
   invalid_transaction_owner: "Transação inválida.",
