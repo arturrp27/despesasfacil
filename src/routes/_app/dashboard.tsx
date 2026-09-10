@@ -186,7 +186,11 @@ function DashboardPage() {
                 to={c.to}
                 search={c.search}
                 className="block rounded-xl transition-shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 hover:shadow-md"
-                aria-label={`Ver transações de ${c.label.toLowerCase()} de ${monthsPT[month]} de ${year}`}
+                aria-label={
+                  c.search
+                    ? `Ver transações de ${monthsPT[c.search.month]} de ${c.search.year}`
+                    : `Ir para ${c.label}`
+                }
               >
                 <Card className="cursor-pointer hover:border-expense/40 transition-colors">
                   {cardBody}
