@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,6 +20,7 @@ import {
   CalendarClock,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — Controle Financeiro" }] }),
@@ -117,7 +118,14 @@ function DashboardPage() {
       tone: saldo >= 0 ? "text-income" : "text-expense",
     },
     { label: "Receitas", value: totalReceitas, icon: ArrowUpRight, tone: "text-income" },
-    { label: "Despesas", value: totalDespesas, icon: ArrowDownRight, tone: "text-expense" },
+    {
+      label: "Despesas",
+      value: totalDespesas,
+      icon: ArrowDownRight,
+      tone: "text-expense",
+      to: "/transactions",
+      search: { month, year },
+    },
     { label: "Pagas", value: totalPagas, icon: CheckCircle2, tone: "text-success" },
     { label: "Pendentes", value: totalPendentes, icon: Clock, tone: "text-pending" },
   ];
@@ -158,19 +166,37 @@ function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        {cards.map((c) => (
-          <Card key={c.label}>
+        {cards.map((c) => {
+          const cardBody = (
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-muted-foreground">{c.label}</span>
-                <c.icon className={`h-4 w-4 ${c.tone}`} />
+                <c.icon className={cn("h-4 w-4", c.tone)} />
               </div>
-              <div className={`mt-2 text-lg md:text-xl font-semibold ${c.tone}`}>
+              <div className={cn("mt-2 text-lg md:text-xl font-semibold", c.tone)}>
                 {formatBRL(c.value)}
               </div>
             </CardContent>
-          </Card>
-        ))}
+          );
+
+          if (c.to) {
+            return (
+              <Link
+                key={c.label}
+                to={c.to}
+                search={c.search}
+                className="block rounded-xl transition-shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 hover:shadow-md"
+                aria-label={`Ver transações de ${c.label.toLowerCase()} de ${monthsPT[month]} de ${year}`}
+              >
+                <Card className="cursor-pointer hover:border-expense/40 transition-colors">
+                  {cardBody}
+                </Card>
+              </Link>
+            );
+          }
+
+          return <Card key={c.label}>{cardBody}</Card>;
+        })}
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">
