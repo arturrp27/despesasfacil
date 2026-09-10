@@ -68,9 +68,12 @@ const monthsPT = [
 
 function TransactionsPage() {
   const now = new Date();
+  const searchParams = Route.useSearch();
   const qc = useQueryClient();
-  const [year, setYear] = useState(now.getFullYear());
-  const [month, setMonth] = useState(now.getMonth());
+  const [year, setYear] = useState(searchParams.year ?? now.getFullYear());
+  const [month, setMonth] = useState(
+    searchParams.month !== undefined ? searchParams.month : now.getMonth(),
+  );
   const [type, setType] = useState<string>("todos");
   const [status, setStatus] = useState<string>("todos");
   const [category, setCategory] = useState<string>("todos");
