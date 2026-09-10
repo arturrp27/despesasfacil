@@ -42,8 +42,10 @@ function validateMonthYear(search: Record<string, unknown>): { month: number; ye
   const now = new Date();
   const rawMonth = parseIntStrict(search.month);
   const rawYear = parseIntStrict(search.year);
-  const month = rawMonth !== undefined && rawMonth >= 0 && rawMonth <= 11 ? rawMonth : now.getMonth();
-  const year = rawYear !== undefined && rawYear >= 1900 && rawYear <= 9999 ? rawYear : now.getFullYear();
+  const month =
+    rawMonth !== undefined && rawMonth >= 0 && rawMonth <= 11 ? rawMonth : now.getMonth();
+  const year =
+    rawYear !== undefined && rawYear >= 1900 && rawYear <= 9999 ? rawYear : now.getFullYear();
   return { month, year };
 }
 
