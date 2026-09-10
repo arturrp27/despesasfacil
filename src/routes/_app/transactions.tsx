@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -29,7 +29,24 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
+function parseMonthYear(value: unknown): number | undefined {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string") {
+    const n = Number(value);
+    if (Number.isFinite(n)) return n;
+  }
+  return undefined;
+}
+
 export const Route = createFileRoute("/_app/transactions")({
+  validateSearch: (search) => {
+    const month = parseMonthYear(search.month);
+    const year = parseMonthYear(search.year);
+    return {
+      month,
+      year,
+    };
+  },
   head: () => ({ meta: [{ title: "Transações — Controle Financeiro" }] }),
   component: TransactionsPage,
 });
