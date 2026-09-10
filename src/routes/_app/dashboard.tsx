@@ -195,11 +195,7 @@ function DashboardPage() {
             );
           }
 
-          return (
-            <Card key={c.label}>
-              {cardBody}
-            </Card>
-          );
+          return <Card key={c.label}>{cardBody}</Card>;
         })}
       </div>
 
