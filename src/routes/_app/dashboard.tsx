@@ -124,7 +124,7 @@ function DashboardPage() {
       icon: ArrowDownRight,
       tone: "text-expense",
       to: "/transactions",
-      search: { month, year },
+      search: { month: now.getMonth(), year: now.getFullYear() },
     },
     { label: "Pagas", value: totalPagas, icon: CheckCircle2, tone: "text-success" },
     { label: "Pendentes", value: totalPendentes, icon: Clock, tone: "text-pending" },
@@ -186,7 +186,7 @@ function DashboardPage() {
                 to={c.to}
                 search={c.search}
                 className="block rounded-xl transition-shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 hover:shadow-md"
-                aria-label={`Ver transações de ${c.label.toLowerCase()} de ${monthsPT[month]} de ${year}`}
+                aria-label={`Ver transações de ${monthsPT[c.search.month]} de ${c.search.year}`}
               >
                 <Card className="cursor-pointer hover:border-expense/40 transition-colors">
                   {cardBody}
