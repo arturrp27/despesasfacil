@@ -1,5 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import { useMemo, useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
@@ -29,24 +29,26 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-function parseMonthYear(value: unknown): number | undefined {
-  if (typeof value === "number" && Number.isFinite(value)) return value;
-  if (typeof value === "string") {
+function parseIntStrict(value: unknown): number | undefined {
+  if (typeof value === "number" && Number.isInteger(value)) return value;
+  if (typeof value === "string" && value.trim() !== "") {
     const n = Number(value);
-    if (Number.isFinite(n)) return n;
+    if (Number.isInteger(n)) return n;
   }
   return undefined;
 }
 
+function validateMonthYear(search: Record<string, unknown>): { month: number; year: number } {
+  const now = new Date();
+  const rawMonth = parseIntStrict(search.month);
+  const rawYear = parseIntStrict(search.year);
+  const month = rawMonth !== undefined && rawMonth >= 0 && rawMonth <= 11 ? rawMonth : now.getMonth();
+  const year = rawYear !== undefined && rawYear >= 1900 && rawYear <= 9999 ? rawYear : now.getFullYear();
+  return { month, year };
+}
+
 export const Route = createFileRoute("/_app/transactions")({
-  validateSearch: (search) => {
-    const month = parseMonthYear(search.month);
-    const year = parseMonthYear(search.year);
-    return {
-      month,
-      year,
-    };
-  },
+  validateSearch: validateMonthYear,
   head: () => ({ meta: [{ title: "Transações — Controle Financeiro" }] }),
   component: TransactionsPage,
 });
