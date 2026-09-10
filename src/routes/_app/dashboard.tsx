@@ -124,7 +124,7 @@ function DashboardPage() {
       icon: ArrowDownRight,
       tone: "text-expense",
       to: "/transactions",
-      search: { month, year },
+      search: { month: now.getMonth(), year: now.getFullYear() },
     },
     { label: "Pagas", value: totalPagas, icon: CheckCircle2, tone: "text-success" },
     { label: "Pendentes", value: totalPendentes, icon: Clock, tone: "text-pending" },
