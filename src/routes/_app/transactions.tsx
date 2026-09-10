@@ -89,6 +89,13 @@ function TransactionsPage() {
     due_date: string;
   } | null>(null);
 
+  // Sincroniza seletores quando search params mudam na mesma página, preservando seleção manual.
+  useEffect(() => {
+    const today = new Date();
+    setMonth(searchParams.month ?? today.getMonth());
+    setYear(searchParams.year ?? today.getFullYear());
+  }, [searchParams.month, searchParams.year]);
+
   // Mês de referência (competência)
   const competence = `${year}-${String(month + 1).padStart(2, "0")}-01`;
 
